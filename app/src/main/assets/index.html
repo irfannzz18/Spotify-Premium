@@ -10,45 +10,49 @@
 html,body{margin:0;height:100%;background:var(--bg);color:var(--text)}
 body{font-family:system-ui,Roboto,Arial,sans-serif;overflow:hidden;-webkit-tap-highlight-color:transparent;-webkit-touch-callout:none}
 *{box-sizing:border-box;margin:0;padding:0}
+a{color:var(--text);text-decoration:none}
 [hidden]{display:none!important}
 
 .app{position:fixed;inset:0;background:var(--bg);display:flex;flex-direction:column}
 .screen{flex:1;overflow-y:auto;padding:34px 12px calc(96px + env(safe-area-inset-bottom));scrollbar-width:none}
 .screen::-webkit-scrollbar{display:none}
 
-.top{display:flex;align-items:center;justify-content:space-between;padding:0 2px 10px}
-.brand{font-size:19px;font-weight:800}
-.tools{display:flex;gap:8px}
+.top{display:grid;grid-template-columns:1fr auto 1fr;align-items:center;padding:0 2px 12px}
+.brand{font-size:19px;font-weight:800;text-align:center;grid-column:2}
+.tools{display:flex;gap:8px;justify-self:end;grid-column:3}
 .muted{color:var(--muted);font-size:13px}
 h2{font-size:15px;font-weight:700;margin-bottom:10px}
 .head{display:flex;align-items:center;justify-content:space-between;gap:10px;margin:4px 2px 12px}
 .page-title{font-size:20px;font-weight:800}
 
-.card{background:var(--card);border:1px solid var(--border);border-radius:24px;padding:14px;
+.card{background:var(--card);border:1px solid var(--border);border-radius:24px;padding:14px;width:100%;
   backdrop-filter:blur(16px);-webkit-backdrop-filter:blur(16px);box-shadow:0 6px 14px rgba(0,0,0,.25)}
 .view{display:none;flex-direction:column;gap:12px}
 .view.active{display:flex}
 
 button{font:inherit;color:var(--text);background:var(--btn);border:1px solid var(--border);
   border-radius:16px;padding:10px 14px;cursor:pointer;box-shadow:0 4px 10px rgba(0,0,0,.25);
-  transition:transform .05s;outline:none;-webkit-user-select:none;user-select:none}
+  transition:transform .05s;outline:none;-webkit-user-select:none;user-select:none;text-decoration:none}
 button:active{box-shadow:inset 2px 3px 6px rgba(0,0,0,.4);transform:scale(.97)}
-button.on{font-weight:700;text-decoration:underline}
+button.on{font-weight:700}
 button.round{width:46px;height:46px;border-radius:50%;padding:0;font-size:16px;display:inline-flex;align-items:center;justify-content:center}
 button.big{width:62px;height:62px;border-radius:50%;padding:0;font-size:20px}
 button.icon{width:36px;height:36px;border-radius:12px;padding:0;font-size:16px;display:inline-flex;align-items:center;justify-content:center}
 button.small{padding:8px 12px;border-radius:14px;font-size:12px}
 button.danger{color:#ff8a8a}
 button.primary{font-weight:700}
+button.ghost{background:transparent;border:0;box-shadow:none;color:transparent;width:46px;height:46px;padding:0}
+button.ghost:active{box-shadow:none;transform:none}
 .row{display:flex;justify-content:center;align-items:center;gap:10px;flex-wrap:wrap}
 .stack{display:grid;gap:10px;margin-top:10px}
 
-.now{text-align:center}
+/* player: narrower and taller */
+.now{text-align:center;max-width:330px;margin:0 auto;padding:22px 16px 26px}
 .now .title{font-size:18px;font-weight:700;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden;overflow-wrap:anywhere;line-height:1.3}
 .now .artist{margin-top:3px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
 .status{margin-top:4px;font-size:13px;color:var(--muted)}
 
-.disc{width:156px;height:156px;margin:12px auto;border-radius:50%;position:relative;
+.disc{width:156px;height:156px;margin:18px auto;border-radius:50%;position:relative;
   background:radial-gradient(circle,var(--disc) 0 16%,#0a0a0a 17% 62%,#000 63%);box-shadow:0 6px 14px rgba(0,0,0,.4)}
 .disc::after{content:"";position:absolute;top:50%;left:50%;width:30px;height:30px;margin:-15px 0 0 -15px;border-radius:50%;background:#1a1a1f;box-shadow:inset 2px 2px 4px #000}
 .disc.spin{animation:spin 8s linear infinite}
@@ -58,12 +62,12 @@ button.primary{font-weight:700}
 input[type=range]{-webkit-appearance:none;appearance:none;width:100%;height:6px;border-radius:6px;background:var(--well);outline:none}
 input[type=range]::-webkit-slider-thumb{-webkit-appearance:none;width:14px;height:14px;border-radius:50%;background:#bbb}
 
-.search,.form{display:flex;gap:8px;align-items:center;padding:4px;border-radius:16px;background:var(--well)}
+.search,.form{display:flex;gap:8px;align-items:center;padding:4px;border-radius:16px;background:var(--well);width:100%}
 .search input,.form input{flex:1;border:0;outline:0;background:transparent;color:var(--text);font:inherit;padding:11px 12px;min-width:0}
 .search input::placeholder,.form input::placeholder{color:var(--muted)}
 .search button,.form button{padding:9px 14px;flex-shrink:0;border-radius:14px}
 
-.list{display:grid;gap:8px}
+.list{display:grid;gap:8px;width:100%}
 .item{display:flex;align-items:center;gap:10px;padding:7px;border-radius:16px;background:var(--item);min-width:0}
 .item.active{background:var(--btn)}
 .item img,.item .ph{width:42px;height:42px;border-radius:12px;object-fit:cover;flex-shrink:0;background:var(--btn)}
@@ -103,15 +107,16 @@ input[type=range]::-webkit-slider-thumb{-webkit-appearance:none;width:14px;heigh
 
 .fullpage{position:absolute;inset:0;z-index:30;background:var(--bg);padding:34px 14px 30px;overflow-y:auto;display:flex;flex-direction:column;gap:12px}
 .fullpage p{font-size:14px;line-height:1.6}
+.fullpage select{font:inherit;color:var(--text);background:var(--btn);border:1px solid var(--border);border-radius:14px;padding:11px 12px;width:100%}
 </style>
 </head>
 <body>
 <div class="app">
   <div class="screen" id="screen">
     <header class="top">
-      <div class="brand">♫ <span>Snuffy</span></div>
+      <div class="brand">Snuffy ♫</div>
       <div class="tools">
-        <button class="icon" id="themeBtn" title="Theme">◐</button>
+        <button class="icon" id="themeBtn" title="Theme">☾</button>
         <button class="icon" id="setBtn" title="Settings">⚙</button>
       </div>
     </header>
@@ -127,15 +132,15 @@ input[type=range]::-webkit-slider-thumb{-webkit-appearance:none;width:14px;heigh
           <input type="range" id="progress" min="0" max="100" value="0" aria-label="Track progress">
           <span id="dur">0:00</span>
         </div>
-        <div class="row" style="margin-top:10px">
+        <div class="row" style="margin-top:12px">
           <button class="round" id="shuffleBtn" data-act="ctrl" data-c="shuffle">⤨</button>
           <button class="round" data-act="ctrl" data-c="prev">⏮</button>
           <button class="big" id="playBtn" data-act="ctrl" data-c="toggle">▶</button>
           <button class="round" data-act="ctrl" data-c="next">⏭</button>
           <button class="round" id="repeatBtn" data-act="ctrl" data-c="repeat">↻</button>
         </div>
-        <div class="row" style="margin-top:12px">
-          <button class="round" data-act="pickfile" title="Open files">📁</button>
+        <div class="row" style="margin-top:4px">
+          <button class="ghost" data-act="pickfile" aria-label="Open files"></button>
         </div>
       </div>
 
@@ -208,11 +213,8 @@ input[type=range]::-webkit-slider-thumb{-webkit-appearance:none;width:14px;heigh
 
   <div class="scrim" id="scrim" hidden></div>
   <aside class="drawer" id="drawer">
-    <div class="dhead">Settings</div>
-    <button class="mi" data-page="account">Account <span>›</span></button>
-    <button class="mi" data-page="appearance">Appearance <span>›</span></button>
-    <button class="mi" data-page="playback">Playback <span>›</span></button>
-    <button class="mi" data-page="storage">Storage <span>›</span></button>
+    <div class="dhead">Menu</div>
+    <button class="mi" data-page="settings">Settings <span>›</span></button>
     <button class="mi" data-page="privacy">Privacy Policy <span>›</span></button>
     <button class="mi" data-page="terms">Terms &amp; Conditions <span>›</span></button>
     <div class="foot">Snuffy · made by Irfan S</div>
@@ -231,7 +233,7 @@ input[type=range]::-webkit-slider-thumb{-webkit-appearance:none;width:14px;heigh
 <input type="file" id="fileInput" accept="audio/*,.txt,text/plain" multiple hidden>
 
 <script>
-/* Paste your backend URL here later (for example your Supabase project URL). */
+/* Paste your backend URL here later if you add sign-in. */
 const SNUFFY_BACKEND = "";
 
 (function () {
@@ -265,29 +267,24 @@ const LS = {
   set(k, v) { try { localStorage.setItem(k, JSON.stringify(v)); } catch (e) {} }
 };
 
-/* theme: system / dark / light */
-const DARK_Q = matchMedia("(prefers-color-scheme: dark)");
+/* theme: dark or light only, default dark */
 function applyTheme() {
-  const m = LS.get("snuffy.theme", "system");
-  const dark = m === "dark" || (m === "system" && DARK_Q.matches);
-  document.documentElement.dataset.theme = dark ? "dark" : "light";
-  $("themeBtn").textContent = m === "dark" ? "☾" : m === "light" ? "☀" : "◐";
-  $("themeBtn").title = "Theme: " + m;
+  const m = LS.get("snuffy.theme", "dark");
+  document.documentElement.dataset.theme = m === "light" ? "light" : "dark";
+  $("themeBtn").textContent = m === "light" ? "☀" : "☾";
+  $("themeBtn").title = m === "light" ? "Light" : "Dark";
 }
-function cycleTheme() {
-  const order = ["system", "dark", "light"];
-  const m = LS.get("snuffy.theme", "system");
-  LS.set("snuffy.theme", order[(order.indexOf(m) + 1) % 3]);
+function toggleTheme() {
+  const m = LS.get("snuffy.theme", "dark");
+  LS.set("snuffy.theme", m === "light" ? "dark" : "light");
   applyTheme();
 }
-DARK_Q.addEventListener("change", applyTheme);
 
 /* state */
 let st = {}, seeking = false, queueSig = "", sheetItem = null, lastResults = [], openAlbumId = null;
 let albums = LS.get("snuffy.albums", []);
 let liked = LS.get("snuffy.liked", []);
 let currentQueue = LS.get("snuffy.queue", []);
-let user = LS.get("snuffy.user", null);
 
 const clean = i => ({ id: i.id || null, uri: i.uri || "", title: i.title || "Unknown", artist: i.artist || "", thumb: i.thumb || "" });
 const keyOf = i => i.id ? `v:${i.id}` : i.uri ? `u:${i.uri}` : `t:${i.title}|${i.artist || ""}`;
@@ -416,35 +413,28 @@ function renderAlbums() {
 }
 
 /* settings drawer and full-screen pages */
-const PAGE_TITLES = { account: "Account", appearance: "Appearance", playback: "Playback", storage: "Storage", privacy: "Privacy Policy", terms: "Terms & Conditions" };
+const PAGE_TITLES = { settings: "Settings", privacy: "Privacy Policy", terms: "Terms & Conditions" };
+const QUALITY = LS.get("snuffy.quality", "auto");
 const PAGES = {
-  account: () => user
-    ? `<h2>Signed in</h2><p class="muted">${esc(user.name || user.contact || "")}</p>
-       <div class="row"><button class="small" data-act="signout">Sign out</button></div>`
-    : `<h2>Sign in</h2><p class="muted">Sign in with Google or your mobile number.</p>
-       <div class="stack">
-         <button data-act="google">Continue with Google</button>
-         <div class="form"><input id="phone" type="tel" placeholder="Mobile number, e.g. +91…"><button class="primary small" data-act="phone">Send code</button></div>
-       </div>
-       <p class="muted" id="authMsg" style="margin-top:10px">${SNUFFY_BACKEND ? "" : "Sign-in is not connected yet."}</p>`,
-  appearance: () => `<h2>Appearance</h2>
-    <p class="muted">Current: ${esc(LS.get("snuffy.theme", "system"))}. Tap the ◐ button at the top right to switch between system, dark and light.</p>`,
-  playback: () => `<h2>Playback</h2>
-    <p class="muted">Songs from YouTube play through the phone's audio player. Use ⤨ shuffle and ↻ repeat on Home. Audio files opened with 📁 play directly on the phone.</p>`,
-  storage: () => `<h2>Storage</h2>
-    <p class="muted">Albums: ${albums.length}<br>Liked songs: ${liked.length}<br>Queue: ${queueItems().length}</p>
-    <p class="muted">Everything is stored on this phone only.</p>`,
+  settings: () => `<h2>Sound quality</h2>
+    <p class="muted">Choose how the audio should sound. Saved on this phone.</p>
+    <select id="quality" onchange="setQuality(this.value)">
+      <option value="auto" ${QUALITY === "auto" ? "selected" : ""}>Auto</option>
+      <option value="high" ${QUALITY === "high" ? "selected" : ""}>High</option>
+      <option value="data" ${QUALITY === "data" ? "selected" : ""}>Data saver</option>
+    </select>`,
   privacy: () => `<h2>Privacy Policy</h2>
-    <p>This privacy policy is written by Irfan S, the developer of Snuffy.</p>
-    <p>Snuffy stores your albums, liked songs and queue on this device. If you sign in, your name and email or mobile number are used only to identify your account. Your data is not sold or shared with advertisers.</p>
-    <p>Search and playback of YouTube content are provided through YouTube. YouTube's own terms and privacy policy apply to that content.</p>
-    <p>Contact: Irfan S.</p>`,
+    <p>Snuffy stores your albums, liked songs and queue only on this device. Nothing is sold or shared with advertisers.</p>
+    <p>Songs from YouTube are found and played through YouTube's services. YouTube's own terms and privacy policy apply to that content.</p>
+    <p>Audio files you open from your phone stay on your phone and are played directly. Snuffy does not upload them.</p>
+    <p>You can clear your data at any time by deleting albums and likes in the app, or by uninstalling Snuffy.</p>
+    <p>Developer: Irfan S.</p>`,
   terms: () => `<h2>Terms &amp; Conditions</h2>
-    <p>These terms are provided by Irfan S, the developer of Snuffy.</p>
     <p>Snuffy is for personal use. Only play music you have the right to listen to. You are responsible for the files you open and the content you search for.</p>
-    <p>Snuffy is provided as it is, without warranty. Irfan S may update these terms. Continued use means you accept the updated terms.</p>
-    <p>Contact: Irfan S.</p>`
+    <p>Snuffy is provided as it is, without warranty. The terms may be updated. Continued use means you accept the updated terms.</p>
+    <p>Visit the project on GitHub: <a href="https://github.com/irfannzz18/Snuffy">https://github.com/irfannzz18/Snuffy</a></p>`
 };
+function setQuality(v) { LS.set("snuffy.quality", v); }
 function openDrawer() { $("drawer").classList.add("open"); $("scrim").hidden = false; }
 function closeDrawer() { $("drawer").classList.remove("open"); $("scrim").hidden = true; }
 function openPage(name) {
@@ -454,19 +444,6 @@ function openPage(name) {
   closeDrawer();
 }
 function closePage() { $("page").hidden = true; }
-
-function setAuthMsg(t) { const m = $("authMsg"); if (m) m.textContent = t; }
-async function signIn(kind) {
-  if (!SNUFFY_BACKEND) return setAuthMsg("Sign-in is not connected yet. Add your backend URL in the file.");
-  if (kind === "google") { location.href = SNUFFY_BACKEND + "/auth/google"; return; }
-  const phone = ($("phone") && $("phone").value.trim()) || "";
-  if (!phone) return setAuthMsg("Type your mobile number first.");
-  try {
-    await post(SNUFFY_BACKEND + "/auth/phone", { phone });
-    setAuthMsg("Code sent to " + phone + ".");
-  } catch (e) { setAuthMsg("Could not send the code. Try again."); }
-}
-function signOut() { user = null; LS.set("snuffy.user", null); openPage("account"); }
 
 /* rendering */
 function render() {
@@ -566,9 +543,6 @@ document.addEventListener("click", e => {
     case "backalbum":   openAlbumId = null; renderAlbums(); break;
     case "delalbum":    deleteAlbum(); break;
     case "rmtrack":     removeTrack(i); break;
-    case "google":      signIn("google"); break;
-    case "phone":       signIn("phone"); break;
-    case "signout":     signOut(); break;
     case "playall": {
       let l = [...getList(list)];
       if (b.dataset.shuffle) l.sort(() => Math.random() - 0.5);
@@ -577,7 +551,7 @@ document.addEventListener("click", e => {
   }
 });
 
-$("themeBtn").onclick = cycleTheme;
+$("themeBtn").onclick = toggleTheme;
 $("setBtn").onclick = openDrawer;
 $("scrim").onclick = closeDrawer;
 $("pageBack").onclick = closePage;
