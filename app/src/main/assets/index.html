@@ -1,0 +1,598 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="dark">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<title>Snuffy</title>
+<style>
+:root{--bg:#000;--card:rgba(255,255,255,.035);--border:rgba(255,255,255,.05);--text:#e8e8ea;--muted:#7a7a85;--btn:rgba(255,255,255,.05);--nav:rgba(12,12,14,.9);--sheet:rgba(14,14,16,.97);--well:rgba(0,0,0,.4);--item:rgba(255,255,255,.03);--disc:#26262b}
+[data-theme=light]{--bg:#f2f2f4;--card:rgba(255,255,255,.7);--border:rgba(0,0,0,.06);--text:#1a1a1f;--muted:#6b6b75;--btn:rgba(255,255,255,.9);--nav:rgba(255,255,255,.92);--sheet:rgba(250,250,252,.98);--well:rgba(0,0,0,.05);--item:rgba(0,0,0,.03);--disc:#3a3a42}
+html,body{margin:0;height:100%;background:var(--bg);color:var(--text)}
+body{font-family:system-ui,Roboto,Arial,sans-serif;overflow:hidden;-webkit-tap-highlight-color:transparent;-webkit-touch-callout:none}
+*{box-sizing:border-box;margin:0;padding:0}
+[hidden]{display:none!important}
+
+.app{position:fixed;inset:0;background:var(--bg);display:flex;flex-direction:column}
+.screen{flex:1;overflow-y:auto;padding:34px 12px calc(96px + env(safe-area-inset-bottom));scrollbar-width:none}
+.screen::-webkit-scrollbar{display:none}
+
+.top{display:flex;align-items:center;justify-content:space-between;padding:0 2px 10px}
+.brand{font-size:19px;font-weight:800}
+.tools{display:flex;gap:8px}
+.muted{color:var(--muted);font-size:13px}
+h2{font-size:15px;font-weight:700;margin-bottom:10px}
+.head{display:flex;align-items:center;justify-content:space-between;gap:10px;margin:4px 2px 12px}
+.page-title{font-size:20px;font-weight:800}
+
+.card{background:var(--card);border:1px solid var(--border);border-radius:24px;padding:14px;
+  backdrop-filter:blur(16px);-webkit-backdrop-filter:blur(16px);box-shadow:0 6px 14px rgba(0,0,0,.25)}
+.view{display:none;flex-direction:column;gap:12px}
+.view.active{display:flex}
+
+button{font:inherit;color:var(--text);background:var(--btn);border:1px solid var(--border);
+  border-radius:16px;padding:10px 14px;cursor:pointer;box-shadow:0 4px 10px rgba(0,0,0,.25);
+  transition:transform .05s;outline:none;-webkit-user-select:none;user-select:none}
+button:active{box-shadow:inset 2px 3px 6px rgba(0,0,0,.4);transform:scale(.97)}
+button.on{font-weight:700;text-decoration:underline}
+button.round{width:46px;height:46px;border-radius:50%;padding:0;font-size:16px;display:inline-flex;align-items:center;justify-content:center}
+button.big{width:62px;height:62px;border-radius:50%;padding:0;font-size:20px}
+button.icon{width:36px;height:36px;border-radius:12px;padding:0;font-size:16px;display:inline-flex;align-items:center;justify-content:center}
+button.small{padding:8px 12px;border-radius:14px;font-size:12px}
+button.danger{color:#ff8a8a}
+button.primary{font-weight:700}
+.row{display:flex;justify-content:center;align-items:center;gap:10px;flex-wrap:wrap}
+.stack{display:grid;gap:10px;margin-top:10px}
+
+.now{text-align:center}
+.now .title{font-size:18px;font-weight:700;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden;overflow-wrap:anywhere;line-height:1.3}
+.now .artist{margin-top:3px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.status{margin-top:4px;font-size:13px;color:var(--muted)}
+
+.disc{width:156px;height:156px;margin:12px auto;border-radius:50%;position:relative;
+  background:radial-gradient(circle,var(--disc) 0 16%,#0a0a0a 17% 62%,#000 63%);box-shadow:0 6px 14px rgba(0,0,0,.4)}
+.disc::after{content:"";position:absolute;top:50%;left:50%;width:30px;height:30px;margin:-15px 0 0 -15px;border-radius:50%;background:#1a1a1f;box-shadow:inset 2px 2px 4px #000}
+.disc.spin{animation:spin 8s linear infinite}
+@keyframes spin{to{transform:rotate(360deg)}}
+
+.progress{display:flex;align-items:center;gap:8px;margin-top:6px;font-size:11px;color:var(--muted)}
+input[type=range]{-webkit-appearance:none;appearance:none;width:100%;height:6px;border-radius:6px;background:var(--well);outline:none}
+input[type=range]::-webkit-slider-thumb{-webkit-appearance:none;width:14px;height:14px;border-radius:50%;background:#bbb}
+
+.search,.form{display:flex;gap:8px;align-items:center;padding:4px;border-radius:16px;background:var(--well)}
+.search input,.form input{flex:1;border:0;outline:0;background:transparent;color:var(--text);font:inherit;padding:11px 12px;min-width:0}
+.search input::placeholder,.form input::placeholder{color:var(--muted)}
+.search button,.form button{padding:9px 14px;flex-shrink:0;border-radius:14px}
+
+.list{display:grid;gap:8px}
+.item{display:flex;align-items:center;gap:10px;padding:7px;border-radius:16px;background:var(--item);min-width:0}
+.item.active{background:var(--btn)}
+.item img,.item .ph{width:42px;height:42px;border-radius:12px;object-fit:cover;flex-shrink:0;background:var(--btn)}
+.item .meta{flex:1;min-width:0}
+.item .t{font-weight:600;font-size:13px;line-height:1.3;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden;overflow-wrap:anywhere}
+.item .a{font-size:11px;color:var(--muted);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;margin-top:2px}
+.acts{display:flex;gap:5px;flex-shrink:0}
+.acts button{width:31px;height:31px;padding:0;border-radius:50%;font-size:11px}
+
+.album{display:flex;align-items:center;gap:10px;padding:9px;border-radius:18px;background:var(--item);cursor:pointer;min-width:0}
+.album .cover{width:44px;height:44px;border-radius:14px;display:grid;place-items:center;background:var(--btn);flex-shrink:0;font-size:18px}
+.album .meta{flex:1;min-width:0}
+.album .t{font-weight:700;font-size:14px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.album .a{font-size:11px;color:var(--muted)}
+
+.nav{position:absolute;bottom:0;left:0;right:0;z-index:5;display:grid;grid-template-columns:1fr 1fr 1fr;gap:8px;
+  padding:8px 12px calc(10px + env(safe-area-inset-bottom));background:var(--nav);
+  backdrop-filter:blur(16px);-webkit-backdrop-filter:blur(16px);border-top:1px solid var(--border)}
+.tab{background:none;border:0;box-shadow:none;border-radius:16px;padding:7px 0;font-size:11px;color:var(--muted);display:flex;flex-direction:column;align-items:center;gap:2px}
+.tab:active{transform:scale(.96)}
+.tab .i{font-size:17px}
+.tab.on{color:var(--text);font-weight:700;background:var(--btn)}
+
+.overlay{position:absolute;inset:0;background:rgba(0,0,0,.6);z-index:10;display:flex;align-items:flex-end;justify-content:center}
+.sheet{width:100%;max-height:70%;padding:16px;border-radius:26px 26px 0 0;display:flex;flex-direction:column;gap:10px;background:var(--sheet);border-top:1px solid var(--border)}
+.sheet-list{display:grid;gap:8px;overflow:auto;max-height:40vh}
+.sheet-actions{display:flex;gap:8px}
+.sheet-actions button{flex:1}
+
+.scrim{position:absolute;inset:0;background:rgba(0,0,0,.55);z-index:20}
+.drawer{position:absolute;top:0;bottom:0;left:0;width:78%;max-width:300px;z-index:21;background:var(--sheet);
+  border-right:1px solid var(--border);padding:44px 14px 20px;transform:translateX(-105%);transition:transform .25s ease;overflow-y:auto}
+.drawer.open{transform:none}
+.drawer .dhead{font-size:20px;font-weight:800;margin-bottom:14px}
+.drawer .mi{display:flex;width:100%;justify-content:space-between;align-items:center;margin-bottom:8px;text-align:left}
+.drawer .foot{margin-top:18px;font-size:12px;color:var(--muted);line-height:1.5}
+
+.fullpage{position:absolute;inset:0;z-index:30;background:var(--bg);padding:34px 14px 30px;overflow-y:auto;display:flex;flex-direction:column;gap:12px}
+.fullpage p{font-size:14px;line-height:1.6}
+</style>
+</head>
+<body>
+<div class="app">
+  <div class="screen" id="screen">
+    <header class="top">
+      <div class="brand">♫ <span>Snuffy</span></div>
+      <div class="tools">
+        <button class="icon" id="themeBtn" title="Theme">◐</button>
+        <button class="icon" id="setBtn" title="Settings">⚙</button>
+      </div>
+    </header>
+
+    <section class="view active" id="view-home">
+      <div class="card now">
+        <div class="title" id="title">No Track</div>
+        <div class="artist muted" id="artist"></div>
+        <div class="status" id="status">Stopped</div>
+        <div class="disc" id="disc"></div>
+        <div class="progress">
+          <span id="cur">0:00</span>
+          <input type="range" id="progress" min="0" max="100" value="0" aria-label="Track progress">
+          <span id="dur">0:00</span>
+        </div>
+        <div class="row" style="margin-top:10px">
+          <button class="round" id="shuffleBtn" data-act="ctrl" data-c="shuffle">⤨</button>
+          <button class="round" data-act="ctrl" data-c="prev">⏮</button>
+          <button class="big" id="playBtn" data-act="ctrl" data-c="toggle">▶</button>
+          <button class="round" data-act="ctrl" data-c="next">⏭</button>
+          <button class="round" id="repeatBtn" data-act="ctrl" data-c="repeat">↻</button>
+        </div>
+        <div class="row" style="margin-top:12px">
+          <button class="round" data-act="pickfile" title="Open files">📁</button>
+        </div>
+      </div>
+
+      <div class="card">
+        <h2>Search</h2>
+        <div class="search">
+          <input id="q" placeholder="Search songs or artists…" autocomplete="off">
+          <button id="goBtn">Go</button>
+        </div>
+      </div>
+
+      <div class="card" id="resultsPanel" hidden>
+        <h2>Results</h2>
+        <div class="list" id="results"></div>
+      </div>
+
+      <div class="card">
+        <h2>Queue</h2>
+        <div class="list" id="queue"><div class="muted">Nothing queued yet.</div></div>
+      </div>
+    </section>
+
+    <section class="view" id="view-albums">
+      <div class="head">
+        <button class="small" id="albumBack" data-act="backalbum" hidden>‹ Back</button>
+        <div class="page-title" id="albumsTitle">Albums</div>
+        <span></span>
+      </div>
+      <div class="card" id="newAlbumBox">
+        <h2>Create album</h2>
+        <div class="form">
+          <input id="albumName" placeholder="Album name…" autocomplete="off" maxlength="40">
+          <button class="primary small" data-act="createalbum">Create</button>
+        </div>
+      </div>
+      <div class="row" id="albumTools" hidden>
+        <button class="small" data-act="playall" data-list="album">▶ Play all</button>
+        <button class="small" data-act="playall" data-list="album" data-shuffle="1">⤨ Shuffle</button>
+        <button class="small danger" data-act="delalbum">🗑 Delete album</button>
+      </div>
+      <div class="card"><div class="list" id="albumsBox"></div></div>
+    </section>
+
+    <section class="view" id="view-liked">
+      <div class="head">
+        <div class="page-title">Liked songs</div>
+        <span class="muted" id="likedCount"></span>
+      </div>
+      <div class="row">
+        <button class="small" data-act="playall" data-list="liked">▶ Play all</button>
+        <button class="small" data-act="playall" data-list="liked" data-shuffle="1">⤨ Shuffle</button>
+      </div>
+      <div class="card"><div class="list" id="likedBox"></div></div>
+    </section>
+  </div>
+
+  <nav class="nav">
+    <button class="tab on" data-tab="home"><span class="i">⌂</span>Home</button>
+    <button class="tab" data-tab="albums"><span class="i">▤</span>Albums</button>
+    <button class="tab" data-tab="liked"><span class="i">♥</span>Liked</button>
+  </nav>
+
+  <div class="overlay" id="sheet" hidden>
+    <div class="sheet">
+      <h2>Add to album</h2>
+      <div class="sheet-list" id="sheetList"></div>
+      <div class="sheet-actions"><button data-act="closesheet">Cancel</button></div>
+    </div>
+  </div>
+
+  <div class="scrim" id="scrim" hidden></div>
+  <aside class="drawer" id="drawer">
+    <div class="dhead">Settings</div>
+    <button class="mi" data-page="account">Account <span>›</span></button>
+    <button class="mi" data-page="appearance">Appearance <span>›</span></button>
+    <button class="mi" data-page="playback">Playback <span>›</span></button>
+    <button class="mi" data-page="storage">Storage <span>›</span></button>
+    <button class="mi" data-page="privacy">Privacy Policy <span>›</span></button>
+    <button class="mi" data-page="terms">Terms &amp; Conditions <span>›</span></button>
+    <div class="foot">Snuffy · made by Irfan S</div>
+  </aside>
+
+  <section class="fullpage" id="page" hidden>
+    <div class="head">
+      <button class="small" id="pageBack">‹ Back</button>
+      <div class="page-title" id="pageTitle"></div>
+      <span></span>
+    </div>
+    <div id="pageBody"></div>
+  </section>
+</div>
+
+<input type="file" id="fileInput" accept="audio/*,.txt,text/plain" multiple hidden>
+
+<script>
+/* Paste your backend URL here later (for example your Supabase project URL). */
+const SNUFFY_BACKEND = "";
+
+(function () {
+  const realFetch = window.fetch.bind(window);
+  const json = obj => new Response(JSON.stringify(obj), { headers: { "Content-Type": "application/json" } });
+  window.fetch = function (url, opts) {
+    const u = String(url);
+    if (!u.startsWith("/api/")) return realFetch(url, opts);
+    const parts = u.split("?");
+    const path = parts[0];
+    const p = new URLSearchParams(parts[1] || "");
+    let body = {};
+    try { body = opts && typeof opts.body === "string" ? JSON.parse(opts.body) : {}; } catch (e) {}
+    if (path === "/api/status") return Promise.resolve(json(JSON.parse(AndroidBridge.status())));
+    if (path === "/api/control") { AndroidBridge.control(body.action || "", String(body.value ?? "")); return Promise.resolve(json({ ok: true })); }
+    if (path === "/api/queue") { AndroidBridge.setQueue(JSON.stringify(body.items || []), body.index || 0); return Promise.resolve(json({ ok: true })); }
+    if (path === "/api/search") return new Promise(resolve => {
+      window.__searchRes = list => resolve(json({ results: list }));
+      AndroidBridge.search(p.get("q") || "");
+    });
+    return Promise.resolve(json({ error: "Not available in the app" }));
+  };
+})();
+
+const $ = id => document.getElementById(id);
+const esc = s => String(s ?? "").replace(/[&<>"']/g, c => ({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c]));
+const fmt = s => { s = Math.max(0, Math.floor(s || 0)); return `${Math.floor(s/60)}:${String(s%60).padStart(2,"0")}`; };
+const post = (url, body) => fetch(url, {method:"POST", headers:{"Content-Type":"application/json"}, body:JSON.stringify(body)}).then(r => r.json());
+const LS = {
+  get(k, d) { try { const v = JSON.parse(localStorage.getItem(k)); return v ?? d; } catch (e) { return d; } },
+  set(k, v) { try { localStorage.setItem(k, JSON.stringify(v)); } catch (e) {} }
+};
+
+/* theme: system / dark / light */
+const DARK_Q = matchMedia("(prefers-color-scheme: dark)");
+function applyTheme() {
+  const m = LS.get("snuffy.theme", "system");
+  const dark = m === "dark" || (m === "system" && DARK_Q.matches);
+  document.documentElement.dataset.theme = dark ? "dark" : "light";
+  $("themeBtn").textContent = m === "dark" ? "☾" : m === "light" ? "☀" : "◐";
+  $("themeBtn").title = "Theme: " + m;
+}
+function cycleTheme() {
+  const order = ["system", "dark", "light"];
+  const m = LS.get("snuffy.theme", "system");
+  LS.set("snuffy.theme", order[(order.indexOf(m) + 1) % 3]);
+  applyTheme();
+}
+DARK_Q.addEventListener("change", applyTheme);
+
+/* state */
+let st = {}, seeking = false, queueSig = "", sheetItem = null, lastResults = [], openAlbumId = null;
+let albums = LS.get("snuffy.albums", []);
+let liked = LS.get("snuffy.liked", []);
+let currentQueue = LS.get("snuffy.queue", []);
+let user = LS.get("snuffy.user", null);
+
+const clean = i => ({ id: i.id || null, uri: i.uri || "", title: i.title || "Unknown", artist: i.artist || "", thumb: i.thumb || "" });
+const keyOf = i => i.id ? `v:${i.id}` : i.uri ? `u:${i.uri}` : `t:${i.title}|${i.artist || ""}`;
+const isLiked = i => liked.some(x => keyOf(x) === keyOf(i));
+const saveAll = () => { LS.set("snuffy.albums", albums); LS.set("snuffy.liked", liked); LS.set("snuffy.queue", currentQueue); };
+const openAlbum = () => albums.find(a => a.id === openAlbumId);
+const queueItems = () => currentQueue.length ? currentQueue : (st.queue || []);
+
+function currentItem() {
+  const t = st.track;
+  if (!t) return null;
+  const c = currentQueue[st.index];
+  if (c && c.title === t.title) return c;
+  return clean({ title: t.title, artist: t.artist, thumb: t.thumb });
+}
+function getList(name) {
+  if (name === "search") return lastResults;
+  if (name === "liked") return liked;
+  if (name === "queue") return queueItems();
+  if (name === "album") return openAlbum() ? openAlbum().tracks : [];
+  return [];
+}
+function thumbHTML(i) {
+  return i.thumb ? `<img src="${esc(i.thumb)}" alt="" loading="lazy">` : `<div class="ph"></div>`;
+}
+function row(item, list, idx, o = {}) {
+  const on = isLiked(item);
+  const add = o.add !== false;
+  const rm = o.rm ? `<button data-act="rmtrack" data-i="${idx}" title="Remove">×</button>` : "";
+  return `<div class="item ${o.active ? "active" : ""}">
+    ${thumbHTML(item)}
+    <div class="meta"><div class="t">${esc(item.title)}</div><div class="a">${esc(item.artist)}</div></div>
+    <div class="acts">
+      <button data-act="play" data-list="${list}" data-i="${idx}">▶</button>
+      <button class="${on ? "on" : ""}" data-act="like" data-list="${list}" data-i="${idx}">${on ? "♥" : "♡"}</button>
+      ${add ? `<button data-act="addalbum" data-list="${list}" data-i="${idx}">+</button>` : ""}
+      ${rm}
+    </div></div>`;
+}
+
+/* playback */
+async function playList(items, index = 0) {
+  if (!items.length) return;
+  currentQueue = items.map(clean);
+  saveAll();
+  await post("/api/queue", { items: currentQueue, index });
+  refresh();
+}
+async function control(action, value) { await post("/api/control", { action, value }); refresh(); }
+
+/* files from the phone: audio plays directly, .txt lines are searched on YouTube */
+window.__localTracks = arr => playList(arr.map(x => ({ id: null, uri: x.uri, title: x.title, artist: "On this phone" })), 0);
+window.__fileLines = lines => playList(lines.map(t => ({ id: null, title: t, artist: "File" })), 0);
+
+function openFilePicker() {
+  if (window.AndroidBridge) AndroidBridge.pickFile();
+  else $("fileInput").click();
+}
+$("fileInput").addEventListener("change", e => {
+  const files = [...e.target.files];
+  const audio = files.filter(f => !/\.txt$/i.test(f.name));
+  if (audio.length) window.__localTracks(audio.map(f => ({ uri: URL.createObjectURL(f), title: f.name })));
+  e.target.value = "";
+});
+
+/* likes */
+function toggleLike(item) {
+  if (!item) return;
+  const k = keyOf(item);
+  liked = isLiked(item) ? liked.filter(x => keyOf(x) !== k) : [...liked, clean(item)];
+  saveAll(); renderAll();
+}
+
+/* albums */
+function createAlbumFromPage() {
+  const name = $("albumName").value.trim();
+  if (!name) return;
+  albums.push({ id: Date.now().toString(36) + Math.random().toString(36).slice(2, 6), name, tracks: [] });
+  saveAll();
+  $("albumName").value = "";
+  renderAlbums();
+}
+function openSheet(item) { sheetItem = clean(item); renderSheet(); $("sheet").hidden = false; }
+function closeSheet() { $("sheet").hidden = true; sheetItem = null; }
+function renderSheet() {
+  $("sheetList").innerHTML = albums.length
+    ? albums.map(a => `<div class="album" data-act="pick" data-id="${esc(a.id)}">
+        <div class="cover">♫</div>
+        <div class="meta"><div class="t">${esc(a.name)}</div><div class="a">${a.tracks.length} songs</div></div></div>`).join("")
+    : '<div class="muted">No albums yet. Create one in the Albums tab.</div>';
+}
+function pickAlbum(id) {
+  const a = albums.find(x => x.id === id);
+  if (!a || !sheetItem) return;
+  if (!a.tracks.some(t => keyOf(t) === keyOf(sheetItem))) a.tracks.push(sheetItem);
+  saveAll(); closeSheet(); renderAlbums();
+}
+function removeTrack(i) { const a = openAlbum(); if (!a) return; a.tracks.splice(i, 1); saveAll(); renderAlbums(); }
+function deleteAlbum() {
+  const a = openAlbum(); if (!a) return;
+  albums = albums.filter(x => x.id !== a.id);
+  openAlbumId = null; saveAll(); renderAlbums();
+}
+function renderAlbums() {
+  const a = openAlbum();
+  if (openAlbumId && !a) openAlbumId = null;
+  if (a) {
+    $("albumsTitle").textContent = a.name;
+    $("albumBack").hidden = false;
+    $("newAlbumBox").hidden = true;
+    $("albumTools").hidden = false;
+    $("albumsBox").innerHTML = a.tracks.length
+      ? a.tracks.map((t, i) => row(t, "album", i, { add: false, rm: true })).join("")
+      : '<div class="muted">This album is empty. Tap + on any song to add it.</div>';
+  } else {
+    $("albumsTitle").textContent = "Albums";
+    $("albumBack").hidden = true;
+    $("newAlbumBox").hidden = false;
+    $("albumTools").hidden = true;
+    $("albumsBox").innerHTML = albums.length
+      ? albums.map(al => `<div class="album" data-act="openalbum" data-id="${esc(al.id)}">
+          <div class="cover">♫</div>
+          <div class="meta"><div class="t">${esc(al.name)}</div><div class="a">${al.tracks.length} songs</div></div></div>`).join("")
+      : '<div class="muted">No albums yet. Create one above.</div>';
+  }
+}
+
+/* settings drawer and full-screen pages */
+const PAGE_TITLES = { account: "Account", appearance: "Appearance", playback: "Playback", storage: "Storage", privacy: "Privacy Policy", terms: "Terms & Conditions" };
+const PAGES = {
+  account: () => user
+    ? `<h2>Signed in</h2><p class="muted">${esc(user.name || user.contact || "")}</p>
+       <div class="row"><button class="small" data-act="signout">Sign out</button></div>`
+    : `<h2>Sign in</h2><p class="muted">Sign in with Google or your mobile number.</p>
+       <div class="stack">
+         <button data-act="google">Continue with Google</button>
+         <div class="form"><input id="phone" type="tel" placeholder="Mobile number, e.g. +91…"><button class="primary small" data-act="phone">Send code</button></div>
+       </div>
+       <p class="muted" id="authMsg" style="margin-top:10px">${SNUFFY_BACKEND ? "" : "Sign-in is not connected yet."}</p>`,
+  appearance: () => `<h2>Appearance</h2>
+    <p class="muted">Current: ${esc(LS.get("snuffy.theme", "system"))}. Tap the ◐ button at the top right to switch between system, dark and light.</p>`,
+  playback: () => `<h2>Playback</h2>
+    <p class="muted">Songs from YouTube play through the phone's audio player. Use ⤨ shuffle and ↻ repeat on Home. Audio files opened with 📁 play directly on the phone.</p>`,
+  storage: () => `<h2>Storage</h2>
+    <p class="muted">Albums: ${albums.length}<br>Liked songs: ${liked.length}<br>Queue: ${queueItems().length}</p>
+    <p class="muted">Everything is stored on this phone only.</p>`,
+  privacy: () => `<h2>Privacy Policy</h2>
+    <p>This privacy policy is written by Irfan S, the developer of Snuffy.</p>
+    <p>Snuffy stores your albums, liked songs and queue on this device. If you sign in, your name and email or mobile number are used only to identify your account. Your data is not sold or shared with advertisers.</p>
+    <p>Search and playback of YouTube content are provided through YouTube. YouTube's own terms and privacy policy apply to that content.</p>
+    <p>Contact: Irfan S.</p>`,
+  terms: () => `<h2>Terms &amp; Conditions</h2>
+    <p>These terms are provided by Irfan S, the developer of Snuffy.</p>
+    <p>Snuffy is for personal use. Only play music you have the right to listen to. You are responsible for the files you open and the content you search for.</p>
+    <p>Snuffy is provided as it is, without warranty. Irfan S may update these terms. Continued use means you accept the updated terms.</p>
+    <p>Contact: Irfan S.</p>`
+};
+function openDrawer() { $("drawer").classList.add("open"); $("scrim").hidden = false; }
+function closeDrawer() { $("drawer").classList.remove("open"); $("scrim").hidden = true; }
+function openPage(name) {
+  $("pageTitle").textContent = PAGE_TITLES[name];
+  $("pageBody").innerHTML = PAGES[name]();
+  $("page").hidden = false;
+  closeDrawer();
+}
+function closePage() { $("page").hidden = true; }
+
+function setAuthMsg(t) { const m = $("authMsg"); if (m) m.textContent = t; }
+async function signIn(kind) {
+  if (!SNUFFY_BACKEND) return setAuthMsg("Sign-in is not connected yet. Add your backend URL in the file.");
+  if (kind === "google") { location.href = SNUFFY_BACKEND + "/auth/google"; return; }
+  const phone = ($("phone") && $("phone").value.trim()) || "";
+  if (!phone) return setAuthMsg("Type your mobile number first.");
+  try {
+    await post(SNUFFY_BACKEND + "/auth/phone", { phone });
+    setAuthMsg("Code sent to " + phone + ".");
+  } catch (e) { setAuthMsg("Could not send the code. Try again."); }
+}
+function signOut() { user = null; LS.set("snuffy.user", null); openPage("account"); }
+
+/* rendering */
+function render() {
+  const t = st.track || {};
+  $("title").textContent = t.title || "No Track";
+  $("artist").textContent = t.artist || "";
+  const playing = st.state === "playing" && !st.paused;
+  let label = "Stopped";
+  if (st.state === "loading") label = "Loading…";
+  else if (st.state === "error") label = st.error || "Error";
+  else if (st.state === "playing") label = st.paused ? "Paused" : "Playing";
+  $("status").textContent = label;
+  $("disc").classList.toggle("spin", playing);
+  $("playBtn").textContent = (playing || st.state === "loading") ? "❚❚" : "▶";
+  $("shuffleBtn").classList.toggle("on", !!st.shuffle);
+  $("repeatBtn").classList.toggle("on", !!st.repeat);
+  if (!seeking) {
+    $("progress").max = st.duration || 100;
+    $("progress").value = st.position || 0;
+    $("cur").textContent = fmt(st.position);
+    $("dur").textContent = fmt(st.duration);
+  }
+  const sig = `${queueItems().length}:${st.index}:${st.state}:${liked.length}:${t.title || ""}`;
+  if (sig !== queueSig) { queueSig = sig; renderQueue(); }
+}
+function renderQueue() {
+  const q = queueItems();
+  $("queue").innerHTML = q.length
+    ? q.map((item, i) => row(item, "queue", i, { active: i === st.index })).join("")
+    : '<div class="muted">Nothing queued yet.</div>';
+}
+function renderSearch() {
+  $("resultsPanel").hidden = !lastResults.length && !$("results").dataset.busy;
+  $("results").innerHTML = lastResults.map((r, i) => row(r, "search", i)).join("");
+}
+function renderLiked() {
+  $("likedCount").textContent = liked.length ? `${liked.length} songs` : "";
+  $("likedBox").innerHTML = liked.length
+    ? liked.map((t, i) => row(t, "liked", i, { add: false })).join("")
+    : '<div class="muted">No liked songs yet. Tap ♡ on any song.</div>';
+}
+function renderAll() {
+  queueSig = ""; renderQueue(); renderSearch(); renderLiked(); renderAlbums();
+  if (!$("sheet").hidden) renderSheet();
+}
+function setView(name) {
+  document.querySelectorAll(".view").forEach(v => v.classList.toggle("active", v.id === "view-" + name));
+  document.querySelectorAll(".tab").forEach(t => t.classList.toggle("on", t.dataset.tab === name));
+  if (name === "liked") renderLiked();
+  if (name === "albums") renderAlbums();
+  $("screen").scrollTo({top: 0});
+}
+async function refresh() {
+  try { st = await fetch("/api/status").then(r => r.json()); render(); } catch (e) {}
+}
+
+/* search */
+async function search() {
+  const q = $("q").value.trim();
+  if (!q) return;
+  $("resultsPanel").hidden = false;
+  $("results").dataset.busy = "1";
+  $("results").innerHTML = '<div class="muted">Searching…</div>';
+  try {
+    const r = await fetch("/api/search?q=" + encodeURIComponent(q)).then(r => r.json());
+    lastResults = r.results || [];
+  } catch (e) { lastResults = []; }
+  delete $("results").dataset.busy;
+  renderSearch();
+  if (!lastResults.length) $("results").innerHTML = '<div class="muted">No results.</div>';
+}
+
+/* events */
+document.addEventListener("click", e => {
+  const page = e.target.closest("[data-page]");
+  if (page) return openPage(page.dataset.page);
+  const tab = e.target.closest("[data-tab]");
+  if (tab) return setView(tab.dataset.tab);
+  const b = e.target.closest("[data-act]");
+  if (!b) return;
+  const act = b.dataset.act;
+  const list = b.dataset.list;
+  const i = Number(b.dataset.i);
+  const items = list ? getList(list) : null;
+  switch (act) {
+    case "ctrl":        control(b.dataset.c); break;
+    case "pickfile":    openFilePicker(); break;
+    case "likenow":     toggleLike(currentItem()); break;
+    case "addnow":      { const ci = currentItem(); if (ci) openSheet(ci); break; }
+    case "play":        playList(items, i); break;
+    case "like":        toggleLike(items[i]); break;
+    case "addalbum":    openSheet(items[i]); break;
+    case "pick":        pickAlbum(b.dataset.id); break;
+    case "closesheet":  closeSheet(); break;
+    case "createalbum": createAlbumFromPage(); break;
+    case "openalbum":   openAlbumId = b.dataset.id; renderAlbums(); break;
+    case "backalbum":   openAlbumId = null; renderAlbums(); break;
+    case "delalbum":    deleteAlbum(); break;
+    case "rmtrack":     removeTrack(i); break;
+    case "google":      signIn("google"); break;
+    case "phone":       signIn("phone"); break;
+    case "signout":     signOut(); break;
+    case "playall": {
+      let l = [...getList(list)];
+      if (b.dataset.shuffle) l.sort(() => Math.random() - 0.5);
+      playList(l, 0); break;
+    }
+  }
+});
+
+$("themeBtn").onclick = cycleTheme;
+$("setBtn").onclick = openDrawer;
+$("scrim").onclick = closeDrawer;
+$("pageBack").onclick = closePage;
+$("albumName").addEventListener("keydown", e => { if (e.key === "Enter") createAlbumFromPage(); });
+$("sheet").addEventListener("click", e => { if (e.target.id === "sheet") closeSheet(); });
+$("goBtn").onclick = search;
+$("q").addEventListener("keydown", e => { if (e.key === "Enter") search(); });
+const prog = $("progress");
+prog.addEventListener("input", () => { seeking = true; $("cur").textContent = fmt(Number(prog.value)); });
+prog.addEventListener("change", () => { seeking = false; control("seek", Number(prog.value)); });
+
+applyTheme();
+renderAll();
+refresh();
+setInterval(refresh, 1000);
+</script>
+</body>
+</html>
