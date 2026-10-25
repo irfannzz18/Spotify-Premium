@@ -5,21 +5,20 @@
 <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
 <title>Snuffy</title>
 <style>
-:root{--bg:#000;--card:rgba(255,255,255,.035);--border:rgba(255,255,255,.05);--text:#e8e8ea;--muted:#7a7a85;--btn:rgba(255,255,255,.05);--nav:rgba(12,12,14,.9);--sheet:rgba(14,14,16,.97);--well:rgba(0,0,0,.4);--item:rgba(255,255,255,.03);--disc:#26262b}
-[data-theme=light]{--bg:#f2f2f4;--card:rgba(255,255,255,.7);--border:rgba(0,0,0,.06);--text:#1a1a1f;--muted:#6b6b75;--btn:rgba(255,255,255,.9);--nav:rgba(255,255,255,.92);--sheet:rgba(250,250,252,.98);--well:rgba(0,0,0,.05);--item:rgba(0,0,0,.03);--disc:#3a3a42}
+:root{--bg:#000;--card:rgba(255,255,255,.035);--border:rgba(255,255,255,.05);--text:#e8e8ea;--muted:#7a7a85;--btn:rgba(255,255,255,.05);--nav:rgba(12,12,14,.9);--sheet:rgba(14,14,16,.97);--well:rgba(0,0,0,.4);--item:rgba(255,255,255,.03);--active:rgba(255,255,255,.11);--disc:#26262b}
+[data-theme=light]{--bg:#f2f2f4;--card:rgba(255,255,255,.7);--border:rgba(0,0,0,.06);--text:#1a1a1f;--muted:#6b6b75;--btn:rgba(255,255,255,.9);--nav:rgba(255,255,255,.92);--sheet:rgba(250,250,252,.98);--well:rgba(0,0,0,.05);--item:rgba(0,0,0,.03);--active:rgba(0,0,0,.07);--disc:#3a3a42}
 html,body{margin:0;height:100%;background:var(--bg);color:var(--text)}
 body{font-family:system-ui,Roboto,Arial,sans-serif;overflow:hidden;-webkit-tap-highlight-color:transparent;-webkit-touch-callout:none}
 *{box-sizing:border-box;margin:0;padding:0}
-a{color:var(--text);text-decoration:none}
+a{color:var(--text)}
 [hidden]{display:none!important}
 
 .app{position:fixed;inset:0;background:var(--bg);display:flex;flex-direction:column}
 .screen{flex:1;overflow-y:auto;padding:34px 12px calc(96px + env(safe-area-inset-bottom));scrollbar-width:none}
 .screen::-webkit-scrollbar{display:none}
 
-.top{display:grid;grid-template-columns:1fr auto 1fr;align-items:center;padding:0 2px 12px}
-.brand{font-size:19px;font-weight:800;text-align:center;grid-column:2}
-.tools{display:flex;gap:8px;justify-self:end;grid-column:3}
+.top{display:grid;grid-template-columns:44px 1fr 44px;align-items:center;padding:0 2px 12px}
+.brand{font-size:19px;font-weight:800;text-align:center}
 .muted{color:var(--muted);font-size:13px}
 h2{font-size:15px;font-weight:700;margin-bottom:10px}
 .head{display:flex;align-items:center;justify-content:space-between;gap:10px;margin:4px 2px 12px}
@@ -37,30 +36,29 @@ button:active{box-shadow:inset 2px 3px 6px rgba(0,0,0,.4);transform:scale(.97)}
 button.on{font-weight:700}
 button.round{width:46px;height:46px;border-radius:50%;padding:0;font-size:16px;display:inline-flex;align-items:center;justify-content:center}
 button.big{width:62px;height:62px;border-radius:50%;padding:0;font-size:20px}
-button.icon{width:36px;height:36px;border-radius:12px;padding:0;font-size:16px;display:inline-flex;align-items:center;justify-content:center}
+button.circle{width:40px;height:40px;border-radius:50%;padding:0;font-size:17px;display:inline-flex;align-items:center;justify-content:center}
 button.small{padding:8px 12px;border-radius:14px;font-size:12px}
 button.danger{color:#ff8a8a}
 button.primary{font-weight:700}
-button.ghost{background:transparent;border:0;box-shadow:none;color:transparent;width:46px;height:46px;padding:0}
+button.ghost{background:transparent;border:0;box-shadow:none;width:100%;height:56px;padding:0;border-radius:16px}
 button.ghost:active{box-shadow:none;transform:none}
 .row{display:flex;justify-content:center;align-items:center;gap:10px;flex-wrap:wrap}
-.stack{display:grid;gap:10px;margin-top:10px}
 
-/* player: narrower and taller */
-.now{text-align:center;max-width:330px;margin:0 auto;padding:22px 16px 26px}
+/* player: same width, taller */
+.now{text-align:center;padding:26px 16px 30px}
 .now .title{font-size:18px;font-weight:700;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden;overflow-wrap:anywhere;line-height:1.3}
-.now .artist{margin-top:3px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
-.status{margin-top:4px;font-size:13px;color:var(--muted)}
+.now .artist{margin-top:4px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.status{margin-top:6px;font-size:13px;color:var(--muted)}
 
-.disc{width:156px;height:156px;margin:18px auto;border-radius:50%;position:relative;
+.disc{width:170px;height:170px;margin:24px auto;border-radius:50%;position:relative;
   background:radial-gradient(circle,var(--disc) 0 16%,#0a0a0a 17% 62%,#000 63%);box-shadow:0 6px 14px rgba(0,0,0,.4)}
 .disc::after{content:"";position:absolute;top:50%;left:50%;width:30px;height:30px;margin:-15px 0 0 -15px;border-radius:50%;background:#1a1a1f;box-shadow:inset 2px 2px 4px #000}
 .disc.spin{animation:spin 8s linear infinite}
 @keyframes spin{to{transform:rotate(360deg)}}
 
-.progress{display:flex;align-items:center;gap:8px;margin-top:6px;font-size:11px;color:var(--muted)}
-input[type=range]{-webkit-appearance:none;appearance:none;width:100%;height:6px;border-radius:6px;background:var(--well);outline:none}
-input[type=range]::-webkit-slider-thumb{-webkit-appearance:none;width:14px;height:14px;border-radius:50%;background:#bbb}
+.progress{display:flex;align-items:center;gap:10px;margin-top:10px;font-size:11px;color:var(--muted)}
+.bar{flex:1;height:4px;border-radius:4px;background:var(--well);overflow:hidden}
+.bar i{display:block;height:100%;width:0;background:var(--text);opacity:.6}
 
 .search,.form{display:flex;gap:8px;align-items:center;padding:4px;border-radius:16px;background:var(--well);width:100%}
 .search input,.form input{flex:1;border:0;outline:0;background:transparent;color:var(--text);font:inherit;padding:11px 12px;min-width:0}
@@ -69,7 +67,7 @@ input[type=range]::-webkit-slider-thumb{-webkit-appearance:none;width:14px;heigh
 
 .list{display:grid;gap:8px;width:100%}
 .item{display:flex;align-items:center;gap:10px;padding:7px;border-radius:16px;background:var(--item);min-width:0}
-.item.active{background:var(--btn)}
+.item.active{background:var(--active)}
 .item img,.item .ph{width:42px;height:42px;border-radius:12px;object-fit:cover;flex-shrink:0;background:var(--btn)}
 .item .meta{flex:1;min-width:0}
 .item .t{font-weight:600;font-size:13px;line-height:1.3;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden;overflow-wrap:anywhere}
@@ -97,28 +95,51 @@ input[type=range]::-webkit-slider-thumb{-webkit-appearance:none;width:14px;heigh
 .sheet-actions{display:flex;gap:8px}
 .sheet-actions button{flex:1}
 
+/* side menu */
 .scrim{position:absolute;inset:0;background:rgba(0,0,0,.55);z-index:20}
-.drawer{position:absolute;top:0;bottom:0;left:0;width:78%;max-width:300px;z-index:21;background:var(--sheet);
-  border-right:1px solid var(--border);padding:44px 14px 20px;transform:translateX(-105%);transition:transform .25s ease;overflow-y:auto}
+.drawer{position:absolute;top:0;bottom:0;left:0;width:80%;max-width:300px;z-index:21;background:var(--sheet);
+  border-right:1px solid var(--border);padding:40px 14px 20px;transform:translateX(-105%);transition:transform .25s ease;
+  overflow-y:auto;display:flex;flex-direction:column;gap:10px}
 .drawer.open{transform:none}
-.drawer .dhead{font-size:20px;font-weight:800;margin-bottom:14px}
-.drawer .mi{display:flex;width:100%;justify-content:space-between;align-items:center;margin-bottom:8px;text-align:left}
-.drawer .foot{margin-top:18px;font-size:12px;color:var(--muted);line-height:1.5}
+.profile-btn{display:flex;align-items:center;gap:12px;width:100%;padding:14px;border-radius:20px;text-align:left}
+.avatar{width:48px;height:48px;border-radius:50%;display:grid;place-items:center;background:var(--btn);font-weight:800;font-size:18px;flex-shrink:0}
+.pmeta{min-width:0;flex:1}
+.pmeta .pn{font-weight:700;font-size:15px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.pmeta .ps{font-size:12px;color:var(--muted);overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.mi{display:flex;width:100%;justify-content:space-between;align-items:center;text-align:left;border-radius:999px;padding:12px 16px}
+.drawer .foot{margin-top:auto;font-size:12px;color:var(--muted);line-height:1.5;padding-top:10px}
 
-.fullpage{position:absolute;inset:0;z-index:30;background:var(--bg);padding:34px 14px 30px;overflow-y:auto;display:flex;flex-direction:column;gap:12px}
-.fullpage p{font-size:14px;line-height:1.6}
-.fullpage select{font:inherit;color:var(--text);background:var(--btn);border:1px solid var(--border);border-radius:14px;padding:11px 12px;width:100%}
+/* full pages */
+.fullpage{position:absolute;inset:0;z-index:30;background:var(--bg);display:flex;flex-direction:column}
+.fullpage .phead{display:grid;grid-template-columns:44px 1fr 44px;align-items:center;padding:34px 14px 12px}
+.fullpage .phead .pt{text-align:center;font-weight:800;font-size:17px}
+.fullpage .pbody{flex:1;overflow-y:auto;padding:4px 18px 36px;display:flex;flex-direction:column;gap:14px;scrollbar-width:none}
+.fullpage .pbody::-webkit-scrollbar{display:none}
+.fullpage h3{font-size:15px;font-weight:700;margin-top:6px}
+.fullpage p{font-size:14px;line-height:1.65;color:var(--text);opacity:.92}
+.fullpage .updated{font-size:12px;color:var(--muted)}
+.fullpage .legal{margin-top:18px;font-size:12px;color:var(--muted);text-align:center;line-height:1.6}
+.field{display:flex;flex-direction:column;gap:6px}
+.field label{font-size:12px;color:var(--muted);font-weight:600}
+.field .well{display:flex;align-items:center;gap:8px;border-radius:16px;background:var(--well);padding:4px 4px 4px 12px}
+.field input{flex:1;min-width:0;border:0;outline:0;background:transparent;color:var(--text);font:inherit;padding:11px 0}
+.field input::placeholder{color:var(--muted)}
+.field input[type=date]{color-scheme:dark}
+[data-theme=light] .field input[type=date]{color-scheme:light}
+.datepick{position:relative;width:40px;height:40px;border-radius:12px;background:var(--btn);display:inline-flex;align-items:center;justify-content:center;flex-shrink:0;overflow:hidden}
+.datepick input{position:absolute;inset:0;opacity:0;width:100%;height:100%;cursor:pointer}
+.datepick span{pointer-events:none;font-size:16px}
+select.sel{font:inherit;color:var(--text);background:var(--btn);border:1px solid var(--border);border-radius:14px;padding:12px;width:100%}
+.note{font-size:12px;color:var(--muted);min-height:16px}
 </style>
 </head>
 <body>
 <div class="app">
   <div class="screen" id="screen">
     <header class="top">
+      <button class="circle" id="setBtn" title="Menu" aria-label="Menu">☰</button>
       <div class="brand">Snuffy ♫</div>
-      <div class="tools">
-        <button class="icon" id="themeBtn" title="Theme">☾</button>
-        <button class="icon" id="setBtn" title="Settings">⚙</button>
-      </div>
+      <button class="circle" id="themeBtn" title="Theme" aria-label="Theme">☾</button>
     </header>
 
     <section class="view active" id="view-home">
@@ -129,19 +150,17 @@ input[type=range]::-webkit-slider-thumb{-webkit-appearance:none;width:14px;heigh
         <div class="disc" id="disc"></div>
         <div class="progress">
           <span id="cur">0:00</span>
-          <input type="range" id="progress" min="0" max="100" value="0" aria-label="Track progress">
+          <div class="bar"><i id="barFill"></i></div>
           <span id="dur">0:00</span>
         </div>
-        <div class="row" style="margin-top:12px">
+        <div class="row" style="margin-top:14px">
           <button class="round" id="shuffleBtn" data-act="ctrl" data-c="shuffle">⤨</button>
           <button class="round" data-act="ctrl" data-c="prev">⏮</button>
           <button class="big" id="playBtn" data-act="ctrl" data-c="toggle">▶</button>
           <button class="round" data-act="ctrl" data-c="next">⏭</button>
           <button class="round" id="repeatBtn" data-act="ctrl" data-c="repeat">↻</button>
         </div>
-        <div class="row" style="margin-top:4px">
-          <button class="ghost" data-act="pickfile" aria-label="Open files"></button>
-        </div>
+        <div style="margin-top:6px"><button class="ghost" data-act="pickfile" aria-label="Open files"></button></div>
       </div>
 
       <div class="card">
@@ -213,28 +232,40 @@ input[type=range]::-webkit-slider-thumb{-webkit-appearance:none;width:14px;heigh
 
   <div class="scrim" id="scrim" hidden></div>
   <aside class="drawer" id="drawer">
-    <div class="dhead">Menu</div>
-    <button class="mi" data-page="settings">Settings <span>›</span></button>
-    <button class="mi" data-page="privacy">Privacy Policy <span>›</span></button>
-    <button class="mi" data-page="terms">Terms &amp; Conditions <span>›</span></button>
-    <div class="foot">Snuffy · made by Irfan S</div>
+    <button class="profile-btn card" data-page="profile">
+      <div class="avatar" id="avatar">?</div>
+      <div class="pmeta">
+        <div class="pn" id="pName">Your profile</div>
+        <div class="ps" id="pSub">Tap to add your details</div>
+      </div>
+    </button>
+    <button class="mi card" data-page="settings">Settings <span>›</span></button>
+    <button class="mi card" data-page="privacy">Privacy Policy <span>›</span></button>
+    <button class="mi card" data-page="terms">Terms &amp; Conditions <span>›</span></button>
+    <div class="foot">Snuffy™ · made by Irfan S<br>© 2026 All rights reserved.</div>
   </aside>
 
   <section class="fullpage" id="page" hidden>
-    <div class="head">
-      <button class="small" id="pageBack">‹ Back</button>
-      <div class="page-title" id="pageTitle"></div>
+    <div class="phead">
+      <button class="circle" id="pageBack" aria-label="Back">‹</button>
+      <div class="pt" id="pageTitle"></div>
       <span></span>
     </div>
-    <div id="pageBody"></div>
+    <div class="pbody" id="pageBody"></div>
   </section>
 </div>
 
 <input type="file" id="fileInput" accept="audio/*,.txt,text/plain" multiple hidden>
 
 <script>
-/* Paste your backend URL here later if you add sign-in. */
-const SNUFFY_BACKEND = "";
+const $ = id => document.getElementById(id);
+const esc = s => String(s ?? "").replace(/[&<>"']/g, c => ({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c]));
+const fmt = s => { s = Math.max(0, Math.floor(s || 0)); return `${Math.floor(s/60)}:${String(s%60).padStart(2,"0")}`; };
+const post = (url, body) => fetch(url, {method:"POST", headers:{"Content-Type":"application/json"}, body:JSON.stringify(body)}).then(r => r.json());
+const LS = {
+  get(k, d) { try { const v = JSON.parse(localStorage.getItem(k)); return v ?? d; } catch (e) { return d; } },
+  set(k, v) { try { localStorage.setItem(k, JSON.stringify(v)); } catch (e) {} }
+};
 
 (function () {
   const realFetch = window.fetch.bind(window);
@@ -258,33 +289,23 @@ const SNUFFY_BACKEND = "";
   };
 })();
 
-const $ = id => document.getElementById(id);
-const esc = s => String(s ?? "").replace(/[&<>"']/g, c => ({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c]));
-const fmt = s => { s = Math.max(0, Math.floor(s || 0)); return `${Math.floor(s/60)}:${String(s%60).padStart(2,"0")}`; };
-const post = (url, body) => fetch(url, {method:"POST", headers:{"Content-Type":"application/json"}, body:JSON.stringify(body)}).then(r => r.json());
-const LS = {
-  get(k, d) { try { const v = JSON.parse(localStorage.getItem(k)); return v ?? d; } catch (e) { return d; } },
-  set(k, v) { try { localStorage.setItem(k, JSON.stringify(v)); } catch (e) {} }
-};
-
-/* theme: dark or light only, default dark */
+/* theme: dark or light, default dark */
 function applyTheme() {
   const m = LS.get("snuffy.theme", "dark");
   document.documentElement.dataset.theme = m === "light" ? "light" : "dark";
   $("themeBtn").textContent = m === "light" ? "☀" : "☾";
-  $("themeBtn").title = m === "light" ? "Light" : "Dark";
 }
 function toggleTheme() {
-  const m = LS.get("snuffy.theme", "dark");
-  LS.set("snuffy.theme", m === "light" ? "dark" : "light");
+  LS.set("snuffy.theme", LS.get("snuffy.theme", "dark") === "light" ? "dark" : "light");
   applyTheme();
 }
 
 /* state */
-let st = {}, seeking = false, queueSig = "", sheetItem = null, lastResults = [], openAlbumId = null;
+let st = {}, queueSig = "", sheetItem = null, lastResults = [], openAlbumId = null;
 let albums = LS.get("snuffy.albums", []);
 let liked = LS.get("snuffy.liked", []);
 let currentQueue = LS.get("snuffy.queue", []);
+let profile = LS.get("snuffy.profile", { name: "", dob: "", email: "" });
 
 const clean = i => ({ id: i.id || null, uri: i.uri || "", title: i.title || "Unknown", artist: i.artist || "", thumb: i.thumb || "" });
 const keyOf = i => i.id ? `v:${i.id}` : i.uri ? `u:${i.uri}` : `t:${i.title}|${i.artist || ""}`;
@@ -335,7 +356,6 @@ async function playList(items, index = 0) {
 }
 async function control(action, value) { await post("/api/control", { action, value }); refresh(); }
 
-/* files from the phone: audio plays directly, .txt lines are searched on YouTube */
 window.__localTracks = arr => playList(arr.map(x => ({ id: null, uri: x.uri, title: x.title, artist: "On this phone" })), 0);
 window.__fileLines = lines => playList(lines.map(t => ({ id: null, title: t, artist: "File" })), 0);
 
@@ -412,34 +432,107 @@ function renderAlbums() {
   }
 }
 
-/* settings drawer and full-screen pages */
-const PAGE_TITLES = { settings: "Settings", privacy: "Privacy Policy", terms: "Terms & Conditions" };
-const QUALITY = LS.get("snuffy.quality", "auto");
+/* profile: name, date of birth (type it or pick from calendar), email. No verification. */
+function isoToDisplay(iso) {
+  if (!iso) return "";
+  const [y, m, d] = iso.split("-");
+  return y && m && d ? `${d}/${m}/${y}` : "";
+}
+function displayToIso(s) {
+  const m = String(s || "").trim().match(/^(\d{1,2})\/(\d{1,2})\/(\d{4})$/);
+  if (!m) return "";
+  const d = m[1].padStart(2, "0"), mo = m[2].padStart(2, "0"), y = m[3];
+  const dt = new Date(`${y}-${mo}-${d}T00:00:00`);
+  if (isNaN(dt) || dt.getDate() !== Number(d) || dt.getMonth() + 1 !== Number(mo)) return "";
+  return `${y}-${mo}-${d}`;
+}
+function renderProfileHeader() {
+  const initial = (profile.name || "?").trim().charAt(0).toUpperCase() || "?";
+  $("avatar").textContent = initial;
+  $("pName").textContent = profile.name || "Your profile";
+  const sub = [isoToDisplay(profile.dob), profile.email].filter(Boolean).join(" · ");
+  $("pSub").textContent = sub || "Tap to add your details";
+}
+function profileForm() {
+  return `
+    <div class="field"><label for="pfName">Name</label>
+      <div class="well"><input id="pfName" value="${esc(profile.name)}" placeholder="Your name" autocomplete="off"></div></div>
+    <div class="field"><label for="pfDobText">Date of birth</label>
+      <div class="well">
+        <input id="pfDobText" value="${esc(isoToDisplay(profile.dob))}" placeholder="DD/MM/YYYY" inputmode="numeric" autocomplete="off">
+        <label class="datepick" title="Pick from calendar"><span>📅</span>
+          <input type="date" id="pfDobPick" value="${esc(profile.dob)}">
+        </label>
+      </div></div>
+    <div class="field"><label for="pfEmail">Email</label>
+      <div class="well"><input id="pfEmail" type="email" value="${esc(profile.email)}" placeholder="you@example.com" autocomplete="off"></div></div>
+    <div class="row"><button class="primary" data-act="saveprofile">Save</button></div>
+    <div class="note" id="pfNote"></div>`;
+}
+function saveProfile() {
+  const name = $("pfName").value.trim();
+  const dobText = $("pfDobText").value.trim();
+  const dobPick = $("pfDobPick").value;
+  const dob = dobPick || displayToIso(dobText);
+  const email = $("pfEmail").value.trim();
+  if (dobText && !dob) { $("pfNote").textContent = "Date should be DD/MM/YYYY, or pick it from the calendar."; return; }
+  profile = { name, dob, email };
+  LS.set("snuffy.profile", profile);
+  renderProfileHeader();
+  $("pfNote").textContent = "Saved.";
+}
+
+/* side menu and full pages */
+const PAGE_TITLES = { profile: "Profile", settings: "Settings", privacy: "Privacy Policy", terms: "Terms & Conditions" };
+const LEGAL_FOOT = `<div class="legal">© 2026 Snuffy™. All rights reserved.</div>`;
 const PAGES = {
-  settings: () => `<h2>Sound quality</h2>
-    <p class="muted">Choose how the audio should sound. Saved on this phone.</p>
-    <select id="quality" onchange="setQuality(this.value)">
-      <option value="auto" ${QUALITY === "auto" ? "selected" : ""}>Auto</option>
-      <option value="high" ${QUALITY === "high" ? "selected" : ""}>High</option>
-      <option value="data" ${QUALITY === "data" ? "selected" : ""}>Data saver</option>
-    </select>`,
-  privacy: () => `<h2>Privacy Policy</h2>
-    <p>Snuffy stores your albums, liked songs and queue only on this device. Nothing is sold or shared with advertisers.</p>
-    <p>Songs from YouTube are found and played through YouTube's services. YouTube's own terms and privacy policy apply to that content.</p>
-    <p>Audio files you open from your phone stay on your phone and are played directly. Snuffy does not upload them.</p>
-    <p>You can clear your data at any time by deleting albums and likes in the app, or by uninstalling Snuffy.</p>
-    <p>Developer: Irfan S.</p>`,
-  terms: () => `<h2>Terms &amp; Conditions</h2>
-    <p>Snuffy is for personal use. Only play music you have the right to listen to. You are responsible for the files you open and the content you search for.</p>
-    <p>Snuffy is provided as it is, without warranty. The terms may be updated. Continued use means you accept the updated terms.</p>
-    <p>Visit the project on GitHub: <a href="https://github.com/irfannzz18/Snuffy">https://github.com/irfannzz18/Snuffy</a></p>`
+  profile: () => profileForm(),
+  settings: () => `
+    <h3>Sound quality</h3>
+    <p class="muted">Choose how audio should sound. Your choice is saved on this phone.</p>
+    <select class="sel" onchange="LS.set('snuffy.quality', this.value)">
+      <option value="auto" ${LS.get("snuffy.quality","auto")==="auto"?"selected":""}>Auto</option>
+      <option value="high" ${LS.get("snuffy.quality","auto")==="high"?"selected":""}>High</option>
+      <option value="data" ${LS.get("snuffy.quality","auto")==="data"?"selected":""}>Data saver</option>
+    </select>
+    ${LEGAL_FOOT}`,
+  privacy: () => `
+    <p class="updated">Last updated: October 2026</p>
+    <p>Snuffy respects your privacy. This policy explains what information the app uses and how it is handled.</p>
+    <h3>Information stored on your device</h3>
+    <p>Your albums, liked songs, queue, theme choice and profile details are stored only on your device. They are not sent to any server by Snuffy.</p>
+    <h3>Audio files</h3>
+    <p>Audio files you open from your phone are played directly from your device. Snuffy does not upload, copy or share them.</p>
+    <h3>Online search and playback</h3>
+    <p>When you search or play a YouTube song, the request is sent to YouTube. YouTube's own terms and privacy policy apply to that content.</p>
+    <h3>Profile details</h3>
+    <p>If you add a name, date of birth or email, they are used only inside the app on your device. Snuffy does not verify them.</p>
+    <h3>Your choices</h3>
+    <p>You can change or remove your profile details at any time. Uninstalling Snuffy removes all data stored on the device.</p>
+    <h3>Contact</h3>
+    <p>For questions about this policy, use the project page linked in Terms &amp; Conditions.</p>
+    ${LEGAL_FOOT}`,
+  terms: () => `
+    <p class="updated">Last updated: October 2026</p>
+    <p>By using Snuffy you agree to these terms. If you do not agree, please do not use the app.</p>
+    <h3>Personal use</h3>
+    <p>Snuffy is provided for personal, non-commercial use. Play only music you have the right to listen to.</p>
+    <h3>Your content</h3>
+    <p>You are responsible for the files you open and the searches you make.</p>
+    <h3>No warranty</h3>
+    <p>Snuffy is provided as it is, without warranty of any kind. Availability of online songs depends on third-party services.</p>
+    <h3>Changes</h3>
+    <p>These terms may change. Continued use of the app means you accept the updated terms.</p>
+    <h3>Project</h3>
+    <p>Visit the project page: <a href="https://github.com/irfannzz18/Snuffy">github.com/irfannzz18/Snuffy</a></p>
+    ${LEGAL_FOOT}`
 };
-function setQuality(v) { LS.set("snuffy.quality", v); }
 function openDrawer() { $("drawer").classList.add("open"); $("scrim").hidden = false; }
 function closeDrawer() { $("drawer").classList.remove("open"); $("scrim").hidden = true; }
 function openPage(name) {
   $("pageTitle").textContent = PAGE_TITLES[name];
   $("pageBody").innerHTML = PAGES[name]();
+  $("pageBody").scrollTop = 0;
   $("page").hidden = false;
   closeDrawer();
 }
@@ -460,12 +553,10 @@ function render() {
   $("playBtn").textContent = (playing || st.state === "loading") ? "❚❚" : "▶";
   $("shuffleBtn").classList.toggle("on", !!st.shuffle);
   $("repeatBtn").classList.toggle("on", !!st.repeat);
-  if (!seeking) {
-    $("progress").max = st.duration || 100;
-    $("progress").value = st.position || 0;
-    $("cur").textContent = fmt(st.position);
-    $("dur").textContent = fmt(st.duration);
-  }
+  const pos = st.position || 0, dur = st.duration || 0;
+  $("barFill").style.width = dur ? Math.min(100, (pos / dur) * 100) + "%" : "0%";
+  $("cur").textContent = fmt(pos);
+  $("dur").textContent = fmt(dur);
   const sig = `${queueItems().length}:${st.index}:${st.state}:${liked.length}:${t.title || ""}`;
   if (sig !== queueSig) { queueSig = sig; renderQueue(); }
 }
@@ -486,7 +577,7 @@ function renderLiked() {
     : '<div class="muted">No liked songs yet. Tap ♡ on any song.</div>';
 }
 function renderAll() {
-  queueSig = ""; renderQueue(); renderSearch(); renderLiked(); renderAlbums();
+  queueSig = ""; renderQueue(); renderSearch(); renderLiked(); renderAlbums(); renderProfileHeader();
   if (!$("sheet").hidden) renderSheet();
 }
 function setView(name) {
@@ -543,11 +634,26 @@ document.addEventListener("click", e => {
     case "backalbum":   openAlbumId = null; renderAlbums(); break;
     case "delalbum":    deleteAlbum(); break;
     case "rmtrack":     removeTrack(i); break;
+    case "saveprofile": saveProfile(); break;
     case "playall": {
       let l = [...getList(list)];
       if (b.dataset.shuffle) l.sort(() => Math.random() - 0.5);
       playList(l, 0); break;
     }
+  }
+});
+
+/* keep the text date and the calendar date in step */
+document.addEventListener("input", e => {
+  if (e.target.id === "pfDobText") {
+    const iso = displayToIso(e.target.value);
+    if (iso) $("pfDobPick").value = iso;
+  }
+});
+document.addEventListener("change", e => {
+  if (e.target.id === "pfDobPick" && e.target.value) {
+    const [y, m, d] = e.target.value.split("-");
+    $("pfDobText").value = `${d}/${m}/${y}`;
   }
 });
 
@@ -559,9 +665,6 @@ $("albumName").addEventListener("keydown", e => { if (e.key === "Enter") createA
 $("sheet").addEventListener("click", e => { if (e.target.id === "sheet") closeSheet(); });
 $("goBtn").onclick = search;
 $("q").addEventListener("keydown", e => { if (e.key === "Enter") search(); });
-const prog = $("progress");
-prog.addEventListener("input", () => { seeking = true; $("cur").textContent = fmt(Number(prog.value)); });
-prog.addEventListener("change", () => { seeking = false; control("seek", Number(prog.value)); });
 
 applyTheme();
 renderAll();
