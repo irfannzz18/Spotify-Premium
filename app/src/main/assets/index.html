@@ -57,8 +57,9 @@ button.ghost:active{box-shadow:none;transform:none}
 @keyframes spin{to{transform:rotate(360deg)}}
 
 .progress{display:flex;align-items:center;gap:10px;margin-top:10px;font-size:11px;color:var(--muted)}
-.bar{flex:1;height:4px;border-radius:4px;background:var(--well);overflow:hidden}
-.bar i{display:block;height:100%;width:0;background:var(--text);opacity:.6}
+.bar{flex:1;height:4px;border-radius:4px;background:var(--well);position:relative}
+.bar i{position:absolute;left:0;top:0;bottom:0;width:0;border-radius:4px;background:var(--text);opacity:.6}
+.bar .knob{position:absolute;top:50%;width:12px;height:12px;margin:-6px 0 0 -6px;border-radius:50%;background:var(--text);box-shadow:0 2px 6px rgba(0,0,0,.5);pointer-events:none}
 
 .search,.form{display:flex;gap:8px;align-items:center;padding:4px;border-radius:16px;background:var(--well);width:100%}
 .search input,.form input{flex:1;border:0;outline:0;background:transparent;color:var(--text);font:inherit;padding:11px 12px;min-width:0}
@@ -150,7 +151,7 @@ select.sel{font:inherit;color:var(--text);background:var(--btn);border:1px solid
         <div class="disc" id="disc"></div>
         <div class="progress">
           <span id="cur">0:00</span>
-          <div class="bar"><i id="barFill"></i></div>
+          <div class="bar"><i id="barFill"></i><span class="knob" id="knob"></span></div>
           <span id="dur">0:00</span>
         </div>
         <div class="row" style="margin-top:14px">
@@ -554,7 +555,9 @@ function render() {
   $("shuffleBtn").classList.toggle("on", !!st.shuffle);
   $("repeatBtn").classList.toggle("on", !!st.repeat);
   const pos = st.position || 0, dur = st.duration || 0;
-  $("barFill").style.width = dur ? Math.min(100, (pos / dur) * 100) + "%" : "0%";
+  const pct = dur ? Math.min(100, (pos / dur) * 100) + "%" : "0%";
+  $("barFill").style.width = pct;
+  $("knob").style.left = pct;
   $("cur").textContent = fmt(pos);
   $("dur").textContent = fmt(dur);
   const sig = `${queueItems().length}:${st.index}:${st.state}:${liked.length}:${t.title || ""}`;
