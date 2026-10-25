@@ -35,7 +35,7 @@ button{font:inherit;color:var(--text);background:var(--btn);border:1px solid var
 button:active{box-shadow:inset 2px 3px 6px rgba(0,0,0,.4);transform:scale(.97)}
 button.on{font-weight:700}
 button.round{width:46px;height:46px;border-radius:50%;padding:0;font-size:16px;display:inline-flex;align-items:center;justify-content:center}
-button.big{width:62px;height:62px;border-radius:50%;padding:0;font-size:20px}
+button.big{width:62px;height:62px;border-radius:50%;padding:0;font-size:20px;display:inline-flex;align-items:center;justify-content:center}
 button.circle{width:40px;height:40px;border-radius:50%;padding:0;font-size:17px;display:inline-flex;align-items:center;justify-content:center}
 button.small{padding:8px 12px;border-radius:14px;font-size:12px}
 button.danger{color:#ff8a8a}
@@ -643,7 +643,7 @@ document.addEventListener("click", e => {
   }
 });
 
-/* keep the text date and the calendar date in step */
+/* keep the typed date and the calendar date in step */
 document.addEventListener("input", e => {
   if (e.target.id === "pfDobText") {
     const iso = displayToIso(e.target.value);
