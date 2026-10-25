@@ -7,15 +7,15 @@
 <style>
 :root{--bg:#000;--card:rgba(255,255,255,.035);--border:rgba(255,255,255,.05);--text:#e8e8ea;--muted:#7a7a85;--btn:rgba(255,255,255,.05);--nav:rgba(12,12,14,.9);--sheet:rgba(14,14,16,.97);--well:rgba(0,0,0,.4);--item:rgba(255,255,255,.03);--active:rgba(255,255,255,.11);--disc:#26262b}
 [data-theme=light]{--bg:#f2f2f4;--card:rgba(255,255,255,.7);--border:rgba(0,0,0,.06);--text:#1a1a1f;--muted:#6b6b75;--btn:rgba(255,255,255,.9);--nav:rgba(255,255,255,.92);--sheet:rgba(250,250,252,.98);--well:rgba(0,0,0,.05);--item:rgba(0,0,0,.03);--active:rgba(0,0,0,.07);--disc:#3a3a42}
-html,body{margin:0;height:100%;background:var(--bg);color:var(--text)}
+*{box-sizing:border-box;margin:0;padding:0;scrollbar-width:none;-ms-overflow-style:none}
+*::-webkit-scrollbar{display:none;width:0;height:0}
+html,body{height:100%;background:var(--bg);color:var(--text)}
 body{font-family:system-ui,Roboto,Arial,sans-serif;overflow:hidden;-webkit-tap-highlight-color:transparent;-webkit-touch-callout:none}
-*{box-sizing:border-box;margin:0;padding:0}
 a{color:var(--text)}
 [hidden]{display:none!important}
 
 .app{position:fixed;inset:0;background:var(--bg);display:flex;flex-direction:column}
-.screen{flex:1;overflow-y:auto;padding:34px 12px calc(96px + env(safe-area-inset-bottom));scrollbar-width:none}
-.screen::-webkit-scrollbar{display:none}
+.screen{flex:1;overflow-y:auto;padding:34px 12px calc(96px + env(safe-area-inset-bottom))}
 
 .top{display:grid;grid-template-columns:44px 1fr 44px;align-items:center;padding:0 2px 12px}
 .brand{font-size:19px;font-weight:800;text-align:center}
@@ -44,7 +44,7 @@ button.ghost{background:transparent;border:0;box-shadow:none;width:100%;height:5
 button.ghost:active{box-shadow:none;transform:none}
 .row{display:flex;justify-content:center;align-items:center;gap:10px;flex-wrap:wrap}
 
-/* player: same width, taller */
+/* player */
 .now{text-align:center;padding:26px 16px 30px}
 .now .title{font-size:18px;font-weight:700;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden;overflow-wrap:anywhere;line-height:1.3}
 .now .artist{margin-top:4px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
@@ -57,9 +57,11 @@ button.ghost:active{box-shadow:none;transform:none}
 @keyframes spin{to{transform:rotate(360deg)}}
 
 .progress{display:flex;align-items:center;gap:10px;margin-top:10px;font-size:11px;color:var(--muted)}
-.bar{flex:1;height:4px;border-radius:4px;background:var(--well);position:relative}
-.bar i{position:absolute;left:0;top:0;bottom:0;width:0;border-radius:4px;background:var(--text);opacity:.6}
-.bar .knob{position:absolute;top:50%;width:12px;height:12px;margin:-6px 0 0 -6px;border-radius:50%;background:var(--text);box-shadow:0 2px 6px rgba(0,0,0,.5);pointer-events:none}
+/* bar is a tall touch area; the visible line is drawn with ::before */
+.bar{flex:1;height:26px;position:relative;touch-action:none;cursor:pointer}
+.bar::before{content:"";position:absolute;left:0;right:0;top:50%;height:4px;margin-top:-2px;border-radius:4px;background:var(--well)}
+.bar i{position:absolute;left:0;top:50%;height:4px;margin-top:-2px;width:0;border-radius:4px;background:var(--text);opacity:.6}
+.bar .knob{position:absolute;top:50%;width:14px;height:14px;margin:-7px 0 0 -7px;border-radius:50%;background:var(--text);box-shadow:0 2px 6px rgba(0,0,0,.5);pointer-events:none}
 
 .search,.form{display:flex;gap:8px;align-items:center;padding:4px;border-radius:16px;background:var(--well);width:100%}
 .search input,.form input{flex:1;border:0;outline:0;background:transparent;color:var(--text);font:inherit;padding:11px 12px;min-width:0}
@@ -102,11 +104,7 @@ button.ghost:active{box-shadow:none;transform:none}
   border-right:1px solid var(--border);padding:40px 14px 20px;transform:translateX(-105%);transition:transform .25s ease;
   overflow-y:auto;display:flex;flex-direction:column;gap:10px}
 .drawer.open{transform:none}
-.profile-btn{display:flex;align-items:center;gap:12px;width:100%;padding:14px;border-radius:20px;text-align:left}
-.avatar{width:48px;height:48px;border-radius:50%;display:grid;place-items:center;background:var(--btn);font-weight:800;font-size:18px;flex-shrink:0}
-.pmeta{min-width:0;flex:1}
-.pmeta .pn{font-weight:700;font-size:15px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
-.pmeta .ps{font-size:12px;color:var(--muted);overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.profile-btn{display:flex;align-items:center;width:100%;padding:16px;border-radius:20px;text-align:left;font-weight:700;font-size:16px}
 .mi{display:flex;width:100%;justify-content:space-between;align-items:center;text-align:left;border-radius:999px;padding:12px 16px}
 .drawer .foot{margin-top:auto;font-size:12px;color:var(--muted);line-height:1.5;padding-top:10px}
 
@@ -114,8 +112,7 @@ button.ghost:active{box-shadow:none;transform:none}
 .fullpage{position:absolute;inset:0;z-index:30;background:var(--bg);display:flex;flex-direction:column}
 .fullpage .phead{display:grid;grid-template-columns:44px 1fr 44px;align-items:center;padding:34px 14px 12px}
 .fullpage .phead .pt{text-align:center;font-weight:800;font-size:17px}
-.fullpage .pbody{flex:1;overflow-y:auto;padding:4px 18px 36px;display:flex;flex-direction:column;gap:14px;scrollbar-width:none}
-.fullpage .pbody::-webkit-scrollbar{display:none}
+.fullpage .pbody{flex:1;overflow-y:auto;padding:4px 18px 36px;display:flex;flex-direction:column;gap:14px}
 .fullpage h3{font-size:15px;font-weight:700;margin-top:6px}
 .fullpage p{font-size:14px;line-height:1.65;color:var(--text);opacity:.92}
 .fullpage .updated{font-size:12px;color:var(--muted)}
@@ -125,8 +122,6 @@ button.ghost:active{box-shadow:none;transform:none}
 .field .well{display:flex;align-items:center;gap:8px;border-radius:16px;background:var(--well);padding:4px 4px 4px 12px}
 .field input{flex:1;min-width:0;border:0;outline:0;background:transparent;color:var(--text);font:inherit;padding:11px 0}
 .field input::placeholder{color:var(--muted)}
-.field input[type=date]{color-scheme:dark}
-[data-theme=light] .field input[type=date]{color-scheme:light}
 .datepick{position:relative;width:40px;height:40px;border-radius:12px;background:var(--btn);display:inline-flex;align-items:center;justify-content:center;flex-shrink:0;overflow:hidden}
 .datepick input{position:absolute;inset:0;opacity:0;width:100%;height:100%;cursor:pointer}
 .datepick span{pointer-events:none;font-size:16px}
@@ -151,7 +146,7 @@ select.sel{font:inherit;color:var(--text);background:var(--btn);border:1px solid
         <div class="disc" id="disc"></div>
         <div class="progress">
           <span id="cur">0:00</span>
-          <div class="bar"><i id="barFill"></i><span class="knob" id="knob"></span></div>
+          <div class="bar" id="bar"><i id="barFill"></i><span class="knob" id="knob"></span></div>
           <span id="dur">0:00</span>
         </div>
         <div class="row" style="margin-top:14px">
@@ -233,13 +228,7 @@ select.sel{font:inherit;color:var(--text);background:var(--btn);border:1px solid
 
   <div class="scrim" id="scrim" hidden></div>
   <aside class="drawer" id="drawer">
-    <button class="profile-btn card" data-page="profile">
-      <div class="avatar" id="avatar">?</div>
-      <div class="pmeta">
-        <div class="pn" id="pName">Your profile</div>
-        <div class="ps" id="pSub">Tap to add your details</div>
-      </div>
-    </button>
+    <button class="profile-btn card" data-page="profile"><span id="pName">Your profile</span></button>
     <button class="mi card" data-page="settings">Settings <span>›</span></button>
     <button class="mi card" data-page="privacy">Privacy Policy <span>›</span></button>
     <button class="mi card" data-page="terms">Terms &amp; Conditions <span>›</span></button>
@@ -303,6 +292,7 @@ function toggleTheme() {
 
 /* state */
 let st = {}, queueSig = "", sheetItem = null, lastResults = [], openAlbumId = null;
+let seeking = false, dragPct = 0, dragging = false;
 let albums = LS.get("snuffy.albums", []);
 let liked = LS.get("snuffy.liked", []);
 let currentQueue = LS.get("snuffy.queue", []);
@@ -371,6 +361,38 @@ $("fileInput").addEventListener("change", e => {
   e.target.value = "";
 });
 
+/* progress bar: the round knob can be dragged or tapped to move the song */
+function pctFromClientX(clientX) {
+  const r = $("bar").getBoundingClientRect();
+  return Math.min(1, Math.max(0, (clientX - r.left) / r.width));
+}
+function paintProgress(pct, seconds) {
+  const s = (pct * 100) + "%";
+  $("barFill").style.width = s;
+  $("knob").style.left = s;
+  $("cur").textContent = fmt(seconds);
+}
+$("bar").addEventListener("pointerdown", e => {
+  if (!(st.duration > 0)) return;
+  dragging = true; seeking = true;
+  $("bar").setPointerCapture(e.pointerId);
+  dragPct = pctFromClientX(e.clientX);
+  paintProgress(dragPct, dragPct * st.duration);
+});
+$("bar").addEventListener("pointermove", e => {
+  if (!dragging) return;
+  dragPct = pctFromClientX(e.clientX);
+  paintProgress(dragPct, dragPct * st.duration);
+});
+function endDrag() {
+  if (!dragging) return;
+  dragging = false;
+  seeking = false;
+  control("seek", dragPct * st.duration);
+}
+$("bar").addEventListener("pointerup", endDrag);
+$("bar").addEventListener("pointercancel", endDrag);
+
 /* likes */
 function toggleLike(item) {
   if (!item) return;
@@ -433,26 +455,34 @@ function renderAlbums() {
   }
 }
 
-/* profile: name, date of birth (type it or pick from calendar), email. No verification. */
+/* date of birth: digits only, slashes always shown (DD/MM/YYYY), backspace removes digits */
+function digitsOnly(s) { return String(s || "").replace(/\D/g, "").slice(0, 8); }
+function maskDob(digits) {
+  let out = digits.slice(0, 2);
+  if (digits.length >= 2) out += "/" + digits.slice(2, 4);
+  if (digits.length >= 4) out += "/" + digits.slice(4, 8);
+  return out;
+}
+function displayToIso(s) {
+  const m = String(s || "").match(/^(\d{2})\/(\d{2})\/(\d{4})$/);
+  if (!m) return "";
+  const [_, d, mo, y] = m;
+  const dt = new Date(`${y}-${mo}-${d}T00:00:00`);
+  if (isNaN(dt) || dt.getDate() !== Number(d) || dt.getMonth() + 1 !== Number(mo)) return "";
+  return `${y}-${mo}-${d}`;
+}
 function isoToDisplay(iso) {
   if (!iso) return "";
   const [y, m, d] = iso.split("-");
   return y && m && d ? `${d}/${m}/${y}` : "";
 }
-function displayToIso(s) {
-  const m = String(s || "").trim().match(/^(\d{1,2})\/(\d{1,2})\/(\d{4})$/);
-  if (!m) return "";
-  const d = m[1].padStart(2, "0"), mo = m[2].padStart(2, "0"), y = m[3];
-  const dt = new Date(`${y}-${mo}-${d}T00:00:00`);
-  if (isNaN(dt) || dt.getDate() !== Number(d) || dt.getMonth() + 1 !== Number(mo)) return "";
-  return `${y}-${mo}-${d}`;
+function syncCalendar() {
+  const iso = displayToIso($("pfDobText").value);
+  if (iso) $("pfDobPick").value = iso;
 }
+
 function renderProfileHeader() {
-  const initial = (profile.name || "?").trim().charAt(0).toUpperCase() || "?";
-  $("avatar").textContent = initial;
   $("pName").textContent = profile.name || "Your profile";
-  const sub = [isoToDisplay(profile.dob), profile.email].filter(Boolean).join(" · ");
-  $("pSub").textContent = sub || "Tap to add your details";
 }
 function profileForm() {
   return `
@@ -460,7 +490,7 @@ function profileForm() {
       <div class="well"><input id="pfName" value="${esc(profile.name)}" placeholder="Your name" autocomplete="off"></div></div>
     <div class="field"><label for="pfDobText">Date of birth</label>
       <div class="well">
-        <input id="pfDobText" value="${esc(isoToDisplay(profile.dob))}" placeholder="DD/MM/YYYY" inputmode="numeric" autocomplete="off">
+        <input id="pfDobText" value="${esc(isoToDisplay(profile.dob))}" placeholder="DD/MM/YYYY" inputmode="numeric" autocomplete="off" maxlength="10">
         <label class="datepick" title="Pick from calendar"><span>📅</span>
           <input type="date" id="pfDobPick" value="${esc(profile.dob)}">
         </label>
@@ -473,8 +503,7 @@ function profileForm() {
 function saveProfile() {
   const name = $("pfName").value.trim();
   const dobText = $("pfDobText").value.trim();
-  const dobPick = $("pfDobPick").value;
-  const dob = dobPick || displayToIso(dobText);
+  const dob = $("pfDobPick").value || displayToIso(dobText);
   const email = $("pfEmail").value.trim();
   if (dobText && !dob) { $("pfNote").textContent = "Date should be DD/MM/YYYY, or pick it from the calendar."; return; }
   profile = { name, dob, email };
@@ -525,7 +554,7 @@ const PAGES = {
     <h3>Changes</h3>
     <p>These terms may change. Continued use of the app means you accept the updated terms.</p>
     <h3>Project</h3>
-    <p>Visit the project page: <a href="https://github.com/irfannzz18/Snuffy">github.com/irfannzz18/Snuffy</a></p>
+    <p>Visit the project page: <a href="https://github.com/irfannzz18">github.com/irfannzz18</a></p>
     ${LEGAL_FOOT}`
 };
 function openDrawer() { $("drawer").classList.add("open"); $("scrim").hidden = false; }
@@ -554,12 +583,11 @@ function render() {
   $("playBtn").textContent = (playing || st.state === "loading") ? "❚❚" : "▶";
   $("shuffleBtn").classList.toggle("on", !!st.shuffle);
   $("repeatBtn").classList.toggle("on", !!st.repeat);
-  const pos = st.position || 0, dur = st.duration || 0;
-  const pct = dur ? Math.min(100, (pos / dur) * 100) + "%" : "0%";
-  $("barFill").style.width = pct;
-  $("knob").style.left = pct;
-  $("cur").textContent = fmt(pos);
-  $("dur").textContent = fmt(dur);
+  if (!seeking) {
+    const pos = st.position || 0, dur = st.duration || 0;
+    paintProgress(dur ? Math.min(1, pos / dur) : 0, pos);
+    $("dur").textContent = fmt(dur);
+  }
   const sig = `${queueItems().length}:${st.index}:${st.state}:${liked.length}:${t.title || ""}`;
   if (sig !== queueSig) { queueSig = sig; renderQueue(); }
 }
@@ -646,12 +674,18 @@ document.addEventListener("click", e => {
   }
 });
 
-/* keep the typed date and the calendar date in step */
+/* date field: digits only, slashes added automatically */
 document.addEventListener("input", e => {
-  if (e.target.id === "pfDobText") {
-    const iso = displayToIso(e.target.value);
-    if (iso) $("pfDobPick").value = iso;
-  }
+  if (e.target.id !== "pfDobText") return;
+  e.target.value = maskDob(digitsOnly(e.target.value));
+  syncCalendar();
+});
+document.addEventListener("keydown", e => {
+  if (e.target.id !== "pfDobText" || e.key !== "Backspace") return;
+  e.preventDefault();
+  const digits = digitsOnly(e.target.value).slice(0, -1);
+  e.target.value = maskDob(digits);
+  syncCalendar();
 });
 document.addEventListener("change", e => {
   if (e.target.id === "pfDobPick" && e.target.value) {
@@ -676,3 +710,4 @@ setInterval(refresh, 1000);
 </script>
 </body>
 </html>
+  
