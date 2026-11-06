@@ -1,0 +1,535 @@
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="theme-color" content="#101010">
+<title>Snuffy Web</title>
+
+<style>
+:root {
+  color-scheme: dark;
+  --bg: #101010;
+  --panel: #181818;
+  --muted: #aaa;
+  --green: #1ed760;
+  --line: #292929;
+}
+
+* {
+  box-sizing: border-box;
+}
+
+body {
+  margin: 0;
+  background: var(--bg);
+  color: white;
+  font: 15px Inter, system-ui, Arial;
+}
+
+header {
+  height: 68px;
+  padding: 0 22px;
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  border-bottom: 1px solid var(--line);
+  position: sticky;
+  top: 0;
+  background: #101010ee;
+  backdrop-filter: blur(12px);
+  z-index: 3;
+}
+
+.logo {
+  font-weight: 900;
+  font-size: 25px;
+  letter-spacing: -1px;
+}
+
+.logo span {
+  color: var(--green);
+}
+
+main {
+  max-width: 1100px;
+  margin: auto;
+  padding: 28px 20px 150px;
+}
+
+.hero h1 {
+  font-size: clamp(30px, 6vw, 48px);
+  margin: 8px 0;
+}
+
+.muted {
+  color: var(--muted);
+}
+
+.search {
+  display: flex;
+  gap: 10px;
+  margin: 25px 0;
+}
+
+.search input {
+  flex: 1;
+  min-width: 0;
+  background: #242424;
+  border: 1px solid #383838;
+  border-radius: 28px;
+  padding: 15px 18px;
+  color: white;
+  font-size: 16px;
+  outline: none;
+}
+
+.search input:focus {
+  border-color: var(--green);
+}
+
+button {
+  border: 0;
+  border-radius: 24px;
+  background: var(--green);
+  color: #071b0d;
+  font-weight: 750;
+  padding: 0 22px;
+  cursor: pointer;
+}
+
+.section {
+  margin-top: 28px;
+}
+
+.section h2 {
+  font-size: 20px;
+}
+
+.track {
+  display: flex;
+  align-items: center;
+  gap: 13px;
+  padding: 10px;
+  border-radius: 9px;
+}
+
+.track:hover {
+  background: #242424;
+}
+
+.cover {
+  width: 54px;
+  height: 54px;
+  object-fit: cover;
+  border-radius: 6px;
+  background: #303030;
+}
+
+.meta {
+  flex: 1;
+  min-width: 0;
+}
+
+.meta b,
+.meta small {
+  display: block;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.meta small {
+  color: var(--muted);
+  margin-top: 5px;
+}
+
+.play {
+  width: 42px;
+  height: 42px;
+  padding: 0;
+  font-size: 17px;
+}
+
+.player {
+  position: fixed;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  background: #181818;
+  border-top: 1px solid #333;
+  padding: 12px 18px calc(12px + env(safe-area-inset-bottom));
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  z-index: 4;
+}
+
+.now {
+  width: 25%;
+  min-width: 100px;
+  overflow: hidden;
+}
+
+.now b,
+.now small {
+  display: block;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.now small {
+  color: var(--muted);
+  margin-top: 4px;
+}
+
+.controls {
+  flex: 1;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 12px;
+}
+
+.controls button {
+  background: transparent;
+  color: white;
+  padding: 8px;
+  font-size: 20px;
+}
+
+.controls .main {
+  background: var(--green);
+  color: #071b0d;
+  width: 42px;
+  height: 42px;
+  border-radius: 50%;
+}
+
+.status {
+  font-size: 12px;
+  color: var(--muted);
+  text-align: center;
+  margin-top: 5px;
+}
+
+.empty {
+  padding: 28px;
+  color: var(--muted);
+  text-align: center;
+  background: var(--panel);
+  border-radius: 12px;
+}
+
+.loader {
+  opacity: .7;
+}
+
+@media(max-width: 600px) {
+  main {
+    padding: 22px 14px 140px;
+  }
+
+  .player {
+    gap: 8px;
+  }
+
+  .now {
+    width: 30%;
+    min-width: 0;
+  }
+
+  .controls {
+    gap: 3px;
+  }
+
+  .controls button {
+    font-size: 17px;
+  }
+
+  .search button {
+    padding: 0 16px;
+  }
+}
+</style>
+</head>
+
+<body>
+
+<header>
+  <div class="logo">♪ <span>Snuffy</span></div>
+  <div class="muted">Web music player</div>
+</header>
+
+<main>
+
+  <section class="hero">
+    <div class="muted">YOUR MUSIC, YOUR WAY</div>
+
+    <h1>Find your next favourite.</h1>
+
+    <div class="muted">
+      Search songs and play audio directly in your browser.
+    </div>
+  </section>
+
+  <form class="search" id="searchForm">
+    <input
+      id="query"
+      placeholder="What do you want to listen to?"
+      autocomplete="off"
+    >
+
+    <button type="submit">Search</button>
+  </form>
+
+  <section class="section">
+    <h2 id="heading">Discover music</h2>
+
+    <div id="results" class="empty">
+      Search for a song, artist or album to get started.
+    </div>
+  </section>
+
+</main>
+
+<footer class="player">
+
+  <div class="now">
+    <b id="nowTitle">Nothing playing</b>
+    <small id="nowArtist">Choose a song</small>
+  </div>
+
+  <div style="flex:1;min-width:0">
+
+    <div class="controls">
+      <button id="prev" title="Previous">⏮</button>
+
+      <button class="main" id="toggle" title="Play">
+        ▶
+      </button>
+
+      <button id="next" title="Next">⏭</button>
+    </div>
+
+    <div class="status" id="status">
+      Ready
+    </div>
+
+  </div>
+
+  <audio id="audio" preload="none"></audio>
+
+</footer>
+
+<script>
+const $ = id => document.getElementById(id);
+
+const audio = $("audio");
+
+let tracks = [];
+let index = -1;
+let busy = false;
+
+
+function esc(s) {
+  return String(s || "").replace(/[&<>"']/g, c => ({
+    "&": "&amp;",
+    "<": "&lt;",
+    ">": "&gt;",
+    '"': "&quot;",
+    "'": "&#39;"
+  }[c]));
+}
+
+
+function render() {
+  const box = $("results");
+
+  if (!tracks.length) {
+    box.className = "empty";
+    box.textContent = "No results found. Try another search.";
+    return;
+  }
+
+  box.className = "";
+
+  box.innerHTML = tracks.map((t, i) => `
+    <div class="track">
+
+      <img
+        class="cover"
+        src="${esc(t.thumb || "")}"
+        onerror="this.style.visibility='hidden'"
+      >
+
+      <div class="meta">
+        <b>${esc(t.title)}</b>
+        <small>${esc(t.artist)}</small>
+      </div>
+
+      <button
+        class="play"
+        data-i="${i}"
+        aria-label="Play"
+      >▶</button>
+
+    </div>
+  `).join("");
+
+  box.querySelectorAll("[data-i]").forEach(b => {
+    b.addEventListener("click", () => {
+      play(Number(b.dataset.i));
+    });
+  });
+}
+
+
+async function search(e) {
+  e?.preventDefault();
+
+  const q = $("query").value.trim();
+
+  if (!q || busy) return;
+
+  busy = true;
+
+  $("heading").textContent = "Searching…";
+
+  $("results").className = "empty loader";
+  $("results").textContent = "Finding songs…";
+
+  try {
+    const r = await fetch(
+      "/api/search?q=" + encodeURIComponent(q)
+    );
+
+    const d = await r.json();
+
+    if (!r.ok) {
+      throw Error(d.error || "Search failed");
+    }
+
+    tracks = d.results || [];
+
+    render();
+
+    $("heading").textContent = "Search results";
+
+  } catch (err) {
+
+    $("results").className = "empty";
+    $("results").textContent = err.message;
+
+  } finally {
+    busy = false;
+  }
+}
+
+
+async function play(i) {
+  if (i < 0 || i >= tracks.length) return;
+
+  index = i;
+
+  const t = tracks[i];
+
+  $("nowTitle").textContent = t.title;
+  $("nowArtist").textContent = t.artist;
+
+  $("status").textContent = "Loading audio…";
+  $("toggle").textContent = "Ⅱ";
+
+  try {
+    const r = await fetch(
+      "/api/resolve?id=" + encodeURIComponent(t.id)
+    );
+
+    const d = await r.json();
+
+    if (!r.ok) {
+      throw Error(d.error || "Could not load audio");
+    }
+
+    audio.src = d.url;
+
+    await audio.play();
+
+    $("status").textContent = "Playing";
+
+  } catch (e) {
+
+    $("status").textContent = e.message;
+    $("toggle").textContent = "▶";
+  }
+}
+
+
+$("searchForm").addEventListener("submit", search);
+
+
+$("toggle").addEventListener("click", () => {
+
+  if (!audio.src) {
+    if (tracks.length) play(0);
+    return;
+  }
+
+  if (audio.paused) {
+    audio.play();
+  } else {
+    audio.pause();
+  }
+
+});
+
+
+audio.addEventListener("play", () => {
+  $("toggle").textContent = "Ⅱ";
+});
+
+
+audio.addEventListener("pause", () => {
+  $("toggle").textContent = "▶";
+});
+
+
+audio.addEventListener("ended", () => {
+
+  if (index + 1 < tracks.length) {
+    play(index + 1);
+  } else {
+    $("status").textContent = "Finished";
+  }
+
+});
+
+
+$("next").onclick = () => {
+  play(index + 1);
+};
+
+
+$("prev").onclick = () => {
+
+  if (audio.currentTime > 3) {
+    audio.currentTime = 0;
+  } else {
+    play(Math.max(0, index - 1));
+  }
+
+};
+
+
+$("query").addEventListener("keydown", e => {
+  if (e.key === "Enter") {
+    search(e);
+  }
+});
+
+</script>
+
+</body>
+</html>
