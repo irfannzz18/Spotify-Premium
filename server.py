@@ -1,143 +1,103 @@
 import os
-import re
 import time
 import threading
 from collections import OrderedDict
 
 import requests
-import yt_dlp
-
-from flask import Flask, Response, jsonify, request, send_from_directory
+from flask import Flask, jsonify, request, send_from_directory
 
 app = Flask(__name__, static_folder="web", static_url_path="")
 
-search_cache = OrderedDict()
-stream_cache = {}
+API_KEY = os.environ.get("YOUTUBE_API_KEY", "").strip()
+CACHE_SECONDS = 180
+CACHE_LIMIT = 60
+
+cache = OrderedDict()
 cache_lock = threading.Lock()
 
-SEARCH_CACHE_SECONDS = 180
-STREAM_CACHE_SECONDS = 180
 
+def youtube_search(query):
+    query = str(query or "").strip()
 
-def clean(value):
-    return str(value or "").strip()
-
-
-def valid_video_id(value):
-    value = clean(value)
-    return value if re.fullmatch(r"[A-Za-z0-9_-]{11}", value) else ""
-
-
-def search_youtube(query):
-    query = clean(query)
     if not query:
         return []
 
-    key = query.lower()
+    if not API_KEY:
+        raise RuntimeError(
+            "YouTube API key is missing. "
+            "Set YOUTUBE_API_KEY in Render environment variables."
+        )
+
+    cache_key = query.casefold()
 
     with cache_lock:
-        cached = search_cache.get(key)
-        if cached and time.time() - cached["time"] < SEARCH_CACHE_SECONDS:
-            search_cache.move_to_end(key)
-            return cached["results"]
+        saved = cache.get(cache_key)
 
-    options = {
-        "quiet": True,
-        "no_warnings": True,
-        "skip_download": True,
-        "extract_flat": "in_playlist",
-        "noplaylist": True,
-        "socket_timeout": 20,
-        "retries": 2,
-    }
+        if saved and time.time() - saved["time"] < CACHE_SECONDS:
+            cache.move_to_end(cache_key)
+            return saved["results"]
 
-    try:
-        with yt_dlp.YoutubeDL(options) as ydl:
-            data = ydl.extract_info(
-                "ytsearch15:" + query,
-                download=False
-            )
+    response = requests.get(
+        "https://www.googleapis.com/youtube/v3/search",
+        params={
+            "part": "snippet",
+            "type": "video",
+            "videoCategoryId": "10",
+            "maxResults": 15,
+            "q": query,
+            "key": API_KEY,
+        },
+        timeout=15,
+    )
 
-        results = []
+    if response.status_code != 200:
+        try:
+            message = response.json()["error"]["message"]
+        except Exception:
+            message = "YouTube API search failed"
 
-        for item in data.get("entries") or []:
-            if not item:
-                continue
+        raise RuntimeError(message)
 
-            video_id = valid_video_id(item.get("id"))
-            if not video_id:
-                continue
+    payload = response.json()
+    results = []
 
-            results.append({
-                "id": video_id,
-                "title": clean(item.get("title")) or "Unknown title",
-                "artist": clean(
-                    item.get("uploader")
-                    or item.get("channel")
-                    or item.get("artist")
-                ) or "Unknown artist",
-                "thumb": clean(item.get("thumbnail")),
-                "duration": item.get("duration") or 0
-            })
+    for item in payload.get("items", []):
+        video_id = item.get("id", {}).get("videoId", "")
 
-        with cache_lock:
-            search_cache[key] = {
-                "time": time.time(),
-                "results": results
-            }
-            search_cache.move_to_end(key)
+        if not video_id:
+            continue
 
-            while len(search_cache) > 50:
-                search_cache.popitem(last=False)
+        snippet = item.get("snippet", {})
+        thumbnails = snippet.get("thumbnails", {})
 
-        return results
+        thumbnail = (
+            thumbnails.get("high")
+            or thumbnails.get("medium")
+            or thumbnails.get("default")
+            or {}
+        ).get("url", "")
 
-    except Exception:
-        app.logger.exception("YouTube search failed")
-        return []
-
-
-def resolve_audio(video_id):
-    video_id = valid_video_id(video_id)
-
-    if not video_id:
-        raise ValueError("Invalid video ID")
+        results.append({
+            "id": video_id,
+            "title": snippet.get("title") or "Unknown title",
+            "artist": snippet.get("channelTitle") or "YouTube",
+            "thumb": thumbnail or (
+                f"https://i.ytimg.com/vi/{video_id}/hqdefault.jpg"
+            ),
+        })
 
     with cache_lock:
-        cached = stream_cache.get(video_id)
-        if cached and time.time() - cached["time"] < STREAM_CACHE_SECONDS:
-            return cached["info"]
-
-    url = "https://www.youtube.com/watch?v=" + video_id
-
-    options = {
-        "quiet": True,
-        "no_warnings": True,
-        "format": "bestaudio/best",
-        "noplaylist": True,
-        "socket_timeout": 25,
-        "retries": 2,
-    }
-
-    with yt_dlp.YoutubeDL(options) as ydl:
-        info = ydl.extract_info(url, download=False)
-
-    if not info or not info.get("url"):
-        raise RuntimeError("Audio URL unavailable")
-
-    result = {
-        "url": info["url"],
-        "headers": info.get("http_headers") or {},
-        "title": clean(info.get("title"))
-    }
-
-    with cache_lock:
-        stream_cache[video_id] = {
+        cache[cache_key] = {
             "time": time.time(),
-            "info": result
+            "results": results,
         }
 
-    return result
+        cache.move_to_end(cache_key)
+
+        while len(cache) > CACHE_LIMIT:
+            cache.popitem(last=False)
+
+    return results
 
 
 @app.get("/")
@@ -149,89 +109,27 @@ def home():
 def health():
     return jsonify({
         "ok": True,
-        "service": "Snuffy Web"
+        "service": "Snuffy Web",
+        "youtube_search_configured": bool(API_KEY),
     })
 
 
 @app.get("/api/search")
-def api_search():
-    query = clean(request.args.get("q"))
+def search():
+    query = request.args.get("q", "").strip()
 
     if not query:
         return jsonify({"results": []})
 
-    return jsonify({
-        "results": search_youtube(query)
-    })
-
-
-@app.get("/api/stream/<video_id>")
-def api_stream(video_id):
-    upstream = None
-
     try:
-        info = resolve_audio(video_id)
-        headers = dict(info.get("headers") or {})
+        return jsonify({"results": youtube_search(query)})
 
-        range_header = request.headers.get("Range")
-        if range_header:
-            headers["Range"] = range_header
+    except Exception as exc:
+        app.logger.exception("YouTube API search error")
 
-        upstream = requests.get(
-            info["url"],
-            headers=headers,
-            stream=True,
-            timeout=(20, 90),
-            allow_redirects=True
-        )
-
-        if upstream.status_code not in (200, 206):
-            status = upstream.status_code
-            upstream.close()
-            return jsonify({
-                "error": "Audio source returned an error",
-                "status": status
-            }), 502
-
-        response_headers = {}
-
-        for name in (
-            "Content-Type",
-            "Content-Length",
-            "Content-Range",
-            "Accept-Ranges"
-        ):
-            value = upstream.headers.get(name)
-            if value:
-                response_headers[name] = value
-
-        response_headers["Cache-Control"] = "no-store"
-
-        def stream():
-            try:
-                for chunk in upstream.iter_content(64 * 1024):
-                    if chunk:
-                        yield chunk
-            finally:
-                upstream.close()
-
-        return Response(
-            stream(),
-            status=upstream.status_code,
-            headers=response_headers,
-            content_type=upstream.headers.get(
-                "Content-Type",
-                "audio/webm"
-            )
-        )
-
-    except Exception:
-        if upstream:
-            upstream.close()
-
-        app.logger.exception("Audio streaming failed")
         return jsonify({
-            "error": "Unable to play this song. Try another result."
+            "error": str(exc),
+            "results": [],
         }), 502
 
 
@@ -247,5 +145,5 @@ if __name__ == "__main__":
     app.run(
         host="0.0.0.0",
         port=int(os.environ.get("PORT", "5000")),
-        debug=False
+        debug=False,
     )
