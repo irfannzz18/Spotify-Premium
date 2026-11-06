@@ -3,14 +3,10 @@ services:
     name: snuffy-web
     runtime: python
     plan: free
-
-    buildCommand: pip install -r requirements.txt
-
-    startCommand: gunicorn server:app --bind 0.0.0.0:$PORT --workers 1 --threads 8 --timeout 120
-
+    buildCommand: pip install -r requirements.txt && curl -fsSL https://deno.land/install.sh | DENO_INSTALL=/opt/render/project/.deno sh
+    startCommand: PATH=/opt/render/project/.deno/bin:$PATH gunicorn server:app --bind 0.0.0.0:$PORT --workers 1 --threads 8 --timeout 120
     healthCheckPath: /health
     autoDeploy: true
-
     envVars:
       - key: PYTHON_VERSION
         value: 3.12.10
