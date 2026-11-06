@@ -1,239 +1,1420 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="en" data-theme="dark">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1">
-  <meta name="theme-color" content="#101010">
-  <meta name="description" content="Snuffy Web — listen to music.">
-  <title>Snuffy Web</title>
-  <link rel="stylesheet" href="/style.css">
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<meta name="theme-color" content="#000000">
+<title>Snuffy</title>
+
+<style>
+:root {
+  --bg:#000;
+  --card:rgba(255,255,255,.035);
+  --border:rgba(255,255,255,.07);
+  --text:#ededf0;
+  --muted:#85858e;
+  --btn:rgba(255,255,255,.055);
+  --nav:rgba(12,12,14,.94);
+  --well:rgba(0,0,0,.4);
+  --item:rgba(255,255,255,.035);
+  --active:rgba(255,255,255,.15);
+  --disc:#29292e;
+}
+[data-theme="light"] {
+  --bg:#f1f1f3;
+  --card:rgba(255,255,255,.78);
+  --border:rgba(0,0,0,.07);
+  --text:#17171b;
+  --muted:#707078;
+  --btn:rgba(255,255,255,.9);
+  --nav:rgba(255,255,255,.94);
+  --well:rgba(0,0,0,.05);
+  --item:rgba(0,0,0,.035);
+  --active:rgba(0,0,0,.1);
+  --disc:#44444b;
+}
+* {
+  box-sizing:border-box;
+  margin:0;
+  padding:0;
+  scrollbar-width:none;
+  -webkit-tap-highlight-color:transparent;
+}
+*::-webkit-scrollbar { display:none; }
+html,body {
+  width:100%;
+  height:100%;
+  background:var(--bg);
+  color:var(--text);
+  font-family:system-ui,Roboto,Arial,sans-serif;
+}
+body { overflow:hidden; }
+button,input { font:inherit; color:var(--text); }
+button {
+  background:var(--btn);
+  border:1px solid var(--border);
+  border-radius:16px;
+  padding:10px 14px;
+  box-shadow:0 4px 12px rgba(0,0,0,.25);
+  cursor:pointer;
+  outline:none;
+  user-select:none;
+}
+button:active {
+  transform:scale(.97);
+  box-shadow:inset 2px 3px 6px rgba(0,0,0,.35);
+}
+button.on {
+  background:var(--active);
+  font-weight:700;
+}
+[hidden] { display:none!important; }
+
+.app {
+  position:fixed;
+  inset:0;
+  display:flex;
+  flex-direction:column;
+  background:var(--bg);
+}
+.screen {
+  flex:1;
+  overflow-y:auto;
+  padding:30px 12px 100px;
+}
+.top {
+  position:relative;
+  display:grid;
+  grid-template-columns:44px 1fr 44px;
+  align-items:center;
+  padding:0 2px 14px;
+}
+.brand {
+  text-align:center;
+  font-size:19px;
+  font-weight:800;
+}
+.circle {
+  width:40px;
+  height:40px;
+  padding:0;
+  border-radius:50%;
+  display:grid;
+  place-items:center;
+}
+.file-hit {
+  position:absolute;
+  right:52px;
+  top:0;
+  width:48px;
+  height:40px;
+  opacity:0;
+  box-shadow:none;
+}
+.card {
+  width:100%;
+  padding:14px;
+  border-radius:24px;
+  border:1px solid var(--border);
+  background:var(--card);
+  backdrop-filter:blur(16px);
+  -webkit-backdrop-filter:blur(16px);
+  box-shadow:0 6px 16px rgba(0,0,0,.24);
+}
+.view {
+  display:none;
+  flex-direction:column;
+  gap:12px;
+}
+.view.active { display:flex; }
+h2 {
+  font-size:15px;
+  margin-bottom:10px;
+}
+.muted {
+  color:var(--muted);
+  font-size:13px;
+}
+.now {
+  text-align:center;
+  padding:25px 16px 28px;
+}
+.now .title {
+  font-size:18px;
+  font-weight:750;
+  line-height:1.35;
+  overflow-wrap:anywhere;
+}
+.now .artist {
+  margin-top:4px;
+  white-space:nowrap;
+  overflow:hidden;
+  text-overflow:ellipsis;
+}
+.status {
+  margin-top:7px;
+  color:var(--muted);
+  font-size:13px;
+}
+.disc {
+  width:170px;
+  height:170px;
+  margin:24px auto;
+  border-radius:50%;
+  position:relative;
+  background:radial-gradient(circle,var(--disc) 0 16%,#0a0a0a 17% 62%,#000 63%);
+  box-shadow:0 8px 20px rgba(0,0,0,.5);
+}
+.disc:after {
+  content:"";
+  position:absolute;
+  width:30px;
+  height:30px;
+  top:50%;
+  left:50%;
+  margin:-15px;
+  border-radius:50%;
+  background:#1a1a1f;
+  box-shadow:inset 2px 2px 5px #000;
+}
+.disc.spin { animation:spin 8s linear infinite; }
+@keyframes spin { to { transform:rotate(360deg); } }
+
+.progress {
+  display:flex;
+  align-items:center;
+  gap:10px;
+  margin-top:12px;
+  color:var(--muted);
+  font-size:11px;
+}
+.bar {
+  height:26px;
+  flex:1;
+  position:relative;
+  touch-action:none;
+  cursor:pointer;
+}
+.bar:before {
+  content:"";
+  position:absolute;
+  top:50%;
+  left:0;
+  right:0;
+  height:4px;
+  margin-top:-2px;
+  border-radius:5px;
+  background:var(--well);
+}
+.bar i {
+  position:absolute;
+  top:50%;
+  left:0;
+  height:4px;
+  margin-top:-2px;
+  width:0;
+  border-radius:5px;
+  background:var(--text);
+}
+.knob {
+  position:absolute;
+  top:50%;
+  left:0;
+  width:14px;
+  height:14px;
+  margin:-7px;
+  border-radius:50%;
+  background:var(--text);
+  box-shadow:0 2px 6px #0008;
+}
+.row {
+  display:flex;
+  justify-content:center;
+  align-items:center;
+  gap:10px;
+  flex-wrap:wrap;
+}
+.round {
+  width:46px;
+  height:46px;
+  padding:0;
+  border-radius:50%;
+  display:grid;
+  place-items:center;
+}
+.big {
+  width:62px;
+  height:62px;
+  padding:0;
+  border-radius:50%;
+  font-size:20px;
+}
+.small {
+  font-size:12px;
+  padding:8px 12px;
+}
+.search,.form {
+  display:flex;
+  align-items:center;
+  gap:8px;
+  padding:4px;
+  width:100%;
+  border-radius:16px;
+  background:var(--well);
+}
+.search input,.form input {
+  flex:1;
+  min-width:0;
+  border:0;
+  outline:0;
+  background:transparent;
+  padding:11px;
+}
+.search input::placeholder,.form input::placeholder {
+  color:var(--muted);
+}
+.list {
+  display:grid;
+  gap:8px;
+  width:100%;
+}
+.item {
+  display:flex;
+  align-items:center;
+  gap:10px;
+  padding:7px;
+  min-width:0;
+  border-radius:16px;
+  background:var(--item);
+}
+.item.active { background:var(--active); }
+.item img,.ph {
+  width:42px;
+  height:42px;
+  flex-shrink:0;
+  border-radius:12px;
+  object-fit:cover;
+  background:var(--btn);
+}
+.meta { flex:1; min-width:0; }
+.item .t {
+  font-size:13px;
+  font-weight:650;
+  line-height:1.3;
+  overflow-wrap:anywhere;
+}
+.item .a {
+  margin-top:2px;
+  font-size:11px;
+  color:var(--muted);
+  white-space:nowrap;
+  overflow:hidden;
+  text-overflow:ellipsis;
+}
+.acts {
+  display:flex;
+  gap:5px;
+  flex-shrink:0;
+}
+.acts button {
+  width:31px;
+  height:31px;
+  padding:0;
+  border-radius:50%;
+  font-size:11px;
+}
+.head {
+  display:flex;
+  align-items:center;
+  justify-content:space-between;
+  gap:10px;
+  margin:4px 2px 12px;
+}
+.page-title {
+  font-size:20px;
+  font-weight:800;
+}
+.album {
+  display:flex;
+  align-items:center;
+  gap:10px;
+  padding:9px;
+  border-radius:18px;
+  background:var(--item);
+  cursor:pointer;
+}
+.cover {
+  width:44px;
+  height:44px;
+  flex-shrink:0;
+  display:grid;
+  place-items:center;
+  border-radius:14px;
+  background:var(--btn);
+  font-size:18px;
+}
+.album .t {
+  font-size:14px;
+  font-weight:700;
+}
+.album .a {
+  color:var(--muted);
+  font-size:11px;
+}
+.nav {
+  position:absolute;
+  bottom:0;
+  left:0;
+  right:0;
+  z-index:5;
+  display:grid;
+  grid-template-columns:1fr 1fr 1fr;
+  gap:8px;
+  padding:8px 12px calc(10px + env(safe-area-inset-bottom));
+  background:var(--nav);
+  backdrop-filter:blur(16px);
+  border-top:1px solid var(--border);
+}
+.tab {
+  display:flex;
+  flex-direction:column;
+  align-items:center;
+  gap:2px;
+  padding:7px 0;
+  border:0;
+  border-radius:16px;
+  background:none;
+  box-shadow:none;
+  color:var(--muted);
+  font-size:11px;
+}
+.tab .i { font-size:17px; }
+.tab.on {
+  color:var(--text);
+  background:var(--btn);
+  font-weight:700;
+}
+.scrim {
+  position:absolute;
+  inset:0;
+  z-index:20;
+  background:#0009;
+}
+.drawer {
+  position:absolute;
+  top:0;
+  bottom:0;
+  left:0;
+  width:80%;
+  max-width:300px;
+  z-index:21;
+  display:flex;
+  flex-direction:column;
+  gap:10px;
+  padding:40px 14px 20px;
+  background:var(--bg);
+  border-right:1px solid var(--border);
+  transform:translateX(-105%);
+  transition:transform .25s ease;
+}
+.drawer.open { transform:none; }
+.profile-btn {
+  display:flex;
+  align-items:center;
+  gap:12px;
+  width:100%;
+  padding:12px;
+  text-align:left;
+}
+.avatar {
+  width:44px;
+  height:44px;
+  min-width:44px;
+  display:grid;
+  place-items:center;
+  border-radius:50%;
+  background:var(--btn);
+  border:1px solid var(--border);
+  font-size:18px;
+  font-weight:800;
+}
+.pname {
+  font-size:15px;
+  font-weight:700;
+}
+.drawer .foot {
+  margin-top:auto;
+  color:var(--muted);
+  font-size:12px;
+}
+.fullpage {
+  position:absolute;
+  inset:0;
+  z-index:30;
+  display:flex;
+  flex-direction:column;
+  background:var(--bg);
+}
+.phead {
+  display:grid;
+  grid-template-columns:44px 1fr 44px;
+  align-items:center;
+  padding:30px 14px 12px;
+}
+.pt {
+  text-align:center;
+  font-weight:800;
+}
+.pbody {
+  flex:1;
+  overflow-y:auto;
+  padding:10px 18px 35px;
+  display:flex;
+  flex-direction:column;
+  gap:14px;
+}
+.field {
+  display:flex;
+  flex-direction:column;
+  gap:6px;
+}
+.field label {
+  color:var(--muted);
+  font-size:12px;
+  font-weight:600;
+}
+.field input {
+  width:100%;
+  border:0;
+  outline:0;
+  border-radius:15px;
+  padding:13px;
+  color:var(--text);
+  background:var(--well);
+}
+.note {
+  min-height:18px;
+  color:var(--muted);
+  font-size:12px;
+}
+.overlay {
+  position:absolute;
+  inset:0;
+  z-index:10;
+  display:flex;
+  align-items:flex-end;
+  background:#0009;
+}
+.sheet {
+  width:100%;
+  max-height:70%;
+  padding:16px;
+  display:flex;
+  flex-direction:column;
+  gap:10px;
+  background:var(--bg);
+  border-radius:26px 26px 0 0;
+}
+.sheet-list {
+  display:grid;
+  gap:8px;
+  overflow:auto;
+}
+.sheet-actions { display:flex; }
+.sheet-actions button { flex:1; }
+@media(min-width:700px) {
+  .screen {
+    width:min(700px,100%);
+    margin:auto;
+  }
+  .nav {
+    left:50%;
+    width:min(700px,100%);
+    transform:translateX(-50%);
+  }
+}
+</style>
 </head>
+
 <body>
-  <div class="app-shell">
+<div class="app">
+  <main class="screen" id="screen">
 
-    <aside class="sidebar" id="sidebar">
-      <div class="brand">
-        <div class="brand-mark">S</div>
-        <span>Snuffy</span>
-      </div>
+    <header class="top">
+      <button class="circle" id="menuBtn" aria-label="Open menu">☰</button>
+      <div class="brand">Snuffy ♫</div>
+      <button class="circle" id="themeBtn" aria-label="Change theme">☾</button>
+      <button class="file-hit" id="fileBtn" aria-label="Import audio">＋</button>
+    </header>
 
-      <nav class="main-nav">
-        <button class="nav-item active" data-page="home">
-          <span class="nav-icon">⌂</span> Home
-        </button>
-        <button class="nav-item" data-page="search">
-          <span class="nav-icon">⌕</span> Search
-        </button>
-        <button class="nav-item" data-page="albums">
-          <span class="nav-icon">▤</span> Albums
-        </button>
-        <button class="nav-item" data-page="liked">
-          <span class="nav-icon">♥</span> Liked Songs
-        </button>
-        <button class="nav-item" data-page="queue">
-          <span class="nav-icon">☷</span> Queue
-        </button>
-      </nav>
+    <section class="view active" id="view-home">
+      <div class="card now">
+        <div class="title" id="title">No Track</div>
+        <div class="artist muted" id="artist"></div>
+        <div class="status" id="status">Stopped</div>
+        <div class="disc" id="disc"></div>
 
-      <div class="sidebar-bottom">
-        <button class="nav-item" data-page="profile">
-          <span class="nav-icon">◉</span> Profile
-        </button>
-        <button class="nav-item" data-page="settings">
-          <span class="nav-icon">⚙</span> Settings
-        </button>
-      </div>
-    </aside>
-
-    <main class="main-content">
-      <header class="topbar">
-        <button class="icon-button mobile-menu" id="menuButton" aria-label="Menu">☰</button>
-
-        <div class="search-box">
-          <span>⌕</span>
-          <input id="searchInput" type="search"
-                 placeholder="Search songs, artists..."
-                 autocomplete="off">
-          <button id="clearSearch" class="clear-search" aria-label="Clear search">×</button>
-        </div>
-
-        <div class="top-actions">
-          <button class="icon-button" id="fileButton" title="Import audio or song list">＋</button>
-          <input id="fileInput" type="file"
-                 accept="audio/*,.txt"
-                 multiple hidden>
-          <button class="profile-avatar" id="profileButton" title="Profile">S</button>
-        </div>
-      </header>
-
-      <section class="page" id="homePage">
-        <div class="welcome">
-          <p class="eyebrow">YOUR MUSIC SPACE</p>
-          <h1>Listen without limits.</h1>
-          <p class="subheading">Find your favourite songs and play them here.</p>
-        </div>
-
-        <div class="section-heading">
-          <h2>Quick access</h2>
-        </div>
-
-        <div class="quick-grid">
-          <button class="quick-card liked-card" data-page="liked">
-            <span class="quick-symbol">♥</span>
-            <span>Liked Songs</span>
-          </button>
-          <button class="quick-card queue-card" data-page="queue">
-            <span class="quick-symbol">☷</span>
-            <span>Your Queue</span>
-          </button>
-          <button class="quick-card album-card" data-page="albums">
-            <span class="quick-symbol">▤</span>
-            <span>Your Albums</span>
-          </button>
-        </div>
-
-        <div class="section-heading">
-          <h2>Start listening</h2>
-        </div>
-        <div class="empty-panel">
-          <div class="empty-icon">♫</div>
-          <h3>Search for a song</h3>
-          <p>Type a song or artist in the search bar above.</p>
-          <button class="primary-button" id="homeSearchButton">Search music</button>
-        </div>
-      </section>
-
-      <section class="page" id="searchPage" hidden>
-        <div class="page-heading">
-          <p class="eyebrow">DISCOVER</p>
-          <h1>Search</h1>
-          <p class="subheading">Search for songs and artists.</p>
-        </div>
-        <div id="searchStatus" class="status-message"></div>
-        <div id="searchResults" class="track-list"></div>
-      </section>
-
-      <section class="page" id="albumsPage" hidden>
-        <div class="page-heading">
-          <p class="eyebrow">YOUR COLLECTION</p>
-          <h1>Albums</h1>
-        </div>
-        <div id="albumsContent" class="empty-panel">
-          <div class="empty-icon">▤</div>
-          <h3>No albums yet</h3>
-          <p>Your saved albums will appear here.</p>
-        </div>
-      </section>
-
-      <section class="page" id="likedPage" hidden>
-        <div class="page-heading">
-          <p class="eyebrow">YOUR COLLECTION</p>
-          <h1>Liked Songs</h1>
-          <p class="subheading" id="likedCount">0 songs</p>
-        </div>
-        <div id="likedContent" class="track-list"></div>
-      </section>
-
-      <section class="page" id="queuePage" hidden>
-        <div class="page-heading">
-          <p class="eyebrow">UP NEXT</p>
-          <h1>Your Queue</h1>
-          <p class="subheading" id="queueCount">0 songs</p>
-        </div>
-        <div id="queueContent" class="track-list"></div>
-      </section>
-
-      <section class="page" id="profilePage" hidden>
-        <div class="page-heading">
-          <p class="eyebrow">ACCOUNT</p>
-          <h1>Profile</h1>
-        </div>
-        <div class="profile-panel">
-          <div class="large-avatar" id="largeAvatar">S</div>
-          <label for="displayName">Display name</label>
-          <input id="displayName" class="text-input" maxlength="40" value="Snuffy User">
-          <button class="primary-button" id="saveProfile">Save profile</button>
-          <p class="small-note" id="profileMessage"></p>
-        </div>
-      </section>
-
-      <section class="page" id="settingsPage" hidden>
-        <div class="page-heading">
-          <p class="eyebrow">PERSONALISE</p>
-          <h1>Settings</h1>
-        </div>
-        <div class="settings-panel">
-          <div class="setting-row">
-            <div>
-              <strong>Appearance</strong>
-              <p>Choose your preferred theme.</p>
-            </div>
-            <select id="themeSelect" class="theme-select">
-              <option value="dark">Dark</option>
-              <option value="light">Light</option>
-            </select>
+        <div class="progress">
+          <span id="cur">0:00</span>
+          <div class="bar" id="bar">
+            <i id="barFill"></i>
+            <span class="knob" id="knob"></span>
           </div>
-          <div class="setting-row">
-            <div>
-              <strong>Import music</strong>
-              <p>Choose audio files or a text song list from your device.</p>
-            </div>
-            <button class="secondary-button" id="settingsFileButton">Import</button>
-          </div>
+          <span id="dur">0:00</span>
         </div>
-      </section>
 
-      <section class="page" id="privacyPage" hidden>
-        <div class="page-heading"><h1>Privacy</h1></div>
-        <p class="subheading">Your liked songs, queue and profile are stored in this browser.</p>
-      </section>
-
-      <section class="page" id="termsPage" hidden>
-        <div class="page-heading"><h1>Terms</h1></div>
-        <p class="subheading">Use this application only for content you are permitted to access.</p>
-      </section>
-
-      <footer class="footer">
-        <button data-page="privacy">Privacy</button>
-        <button data-page="terms">Terms</button>
-        <span>Snuffy Web</span>
-      </footer>
-    </main>
-  </div>
-
-  <section class="player" id="player">
-    <div class="now-playing">
-      <div class="cover" id="playerCover">♫</div>
-      <div class="track-meta">
-        <strong id="playerTitle">Nothing playing</strong>
-        <span id="playerArtist">Choose a song to start</span>
+        <div class="row" style="margin-top:14px">
+          <button class="round" id="shuffleBtn">⤨</button>
+          <button class="round" id="prevBtn">⏮</button>
+          <button class="big" id="playBtn">▶</button>
+          <button class="round" id="nextBtn">⏭</button>
+          <button class="round" id="repeatBtn">↻</button>
+        </div>
       </div>
-      <button class="like-button" id="playerLike" aria-label="Like song">♡</button>
+
+      <div class="card">
+        <h2>Search</h2>
+        <div class="search">
+          <input id="q" placeholder="Search songs or artists..." autocomplete="off">
+          <button id="goBtn">Go</button>
+        </div>
+      </div>
+
+      <div class="card" id="resultsPanel" hidden>
+        <h2>Results</h2>
+        <div class="list" id="results"></div>
+      </div>
+
+      <div class="card">
+        <h2>Queue</h2>
+        <div class="list" id="queue">
+          <div class="muted">Nothing queued yet.</div>
+        </div>
+      </div>
+    </section>
+
+    <section class="view" id="view-albums">
+      <div class="head">
+        <button class="small" id="albumBack" hidden>‹ Back</button>
+        <div class="page-title" id="albumsTitle">Albums</div>
+        <span></span>
+      </div>
+
+      <div class="card" id="newAlbumBox">
+        <h2>Create album</h2>
+        <div class="form">
+          <input id="albumName" placeholder="Album name..." maxlength="40">
+          <button class="small" id="createAlbumBtn">Create</button>
+        </div>
+      </div>
+
+      <div class="row" id="albumTools" hidden>
+        <button class="small" id="albumPlay">▶ Play all</button>
+        <button class="small" id="albumShuffle">⤨ Shuffle</button>
+        <button class="small" id="deleteAlbum">Delete album</button>
+      </div>
+
+      <div class="card">
+        <div class="list" id="albumsBox"></div>
+      </div>
+    </section>
+
+    <section class="view" id="view-liked">
+      <div class="head">
+        <div class="page-title">Liked songs</div>
+        <span class="muted" id="likedCount"></span>
+      </div>
+
+      <div class="row">
+        <button class="small" id="likedPlay">▶ Play all</button>
+        <button class="small" id="likedShuffle">⤨ Shuffle</button>
+      </div>
+
+      <div class="card">
+        <div class="list" id="likedBox"></div>
+      </div>
+    </section>
+  </main>
+
+  <nav class="nav">
+    <button class="tab on" data-tab="home"><span class="i">⌂</span>Home</button>
+    <button class="tab" data-tab="albums"><span class="i">▤</span>Albums</button>
+    <button class="tab" data-tab="liked"><span class="i">♥</span>Liked</button>
+  </nav>
+
+  <div class="scrim" id="scrim" hidden></div>
+
+  <aside class="drawer" id="drawer">
+    <button class="profile-btn card" id="profileOpen">
+      <div class="avatar" id="avatar">?</div>
+      <div class="pname" id="pName">Your profile</div>
+    </button>
+    <div class="foot">Snuffy™ · made by Irfan S<br>© 2026 All rights reserved.</div>
+  </aside>
+
+  <section class="fullpage" id="profilePage" hidden>
+    <div class="phead">
+      <button class="circle" id="profileBack">‹</button>
+      <div class="pt">Profile</div>
+      <span></span>
     </div>
 
-    <div class="player-center">
-      <div class="player-controls">
-        <button class="control-button" id="shuffleButton" title="Shuffle">⤨</button>
-        <button class="control-button" id="previousButton" title="Previous">◀</button>
-        <button class="play-button" id="playButton" title="Play">▶</button>
-        <button class="control-button" id="nextButton" title="Next">▶</button>
-        <button class="control-button" id="repeatButton" title="Repeat">↻</button>
-      </div>
-      <div class="progress-row">
-        <span id="currentTime">0:00</span>
-        <input type="range" id="progress" min="0" max="1000" value="0">
-        <span id="duration">0:00</span>
+    <div class="pbody">
+      <div class="card">
+        <div class="field">
+          <label for="pfName">Name</label>
+          <input id="pfName" placeholder="Your name" autocomplete="name">
+        </div>
+
+        <div class="field" style="margin-top:14px">
+          <label for="pfDob">Date of birth</label>
+          <input id="pfDob" type="date">
+        </div>
+
+        <div class="field" style="margin-top:14px">
+          <label for="pfEmail">Email</label>
+          <input id="pfEmail" type="email" placeholder="you@example.com" autocomplete="email">
+        </div>
+
+        <button id="saveProfile" style="width:100%;margin-top:16px">Save</button>
+        <div class="note" id="profileNote"></div>
       </div>
     </div>
-
-    <div class="player-right">
-      <span class="volume-symbol">♫</span>
-      <input type="range" id="volume" min="0" max="100" value="80">
-    </div>
-
-    <audio id="audio" preload="none"></audio>
   </section>
 
-  <script src="/app.js" defer></script>
+  <div class="overlay" id="sheet" hidden>
+    <div class="sheet">
+      <h2>Add to album</h2>
+      <div class="sheet-list" id="sheetList"></div>
+      <div class="sheet-actions">
+        <button id="closeSheet">Cancel</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<input type="file" id="fileInput" accept="audio/*" multiple hidden>
+<audio id="audio" preload="metadata"></audio>
+
+<script>
+"use strict";
+
+const $ = id => document.getElementById(id);
+
+const LS = {
+  get(key, fallback) {
+    try {
+      const value = JSON.parse(localStorage.getItem(key));
+      return value ?? fallback;
+    } catch {
+      return fallback;
+    }
+  },
+  set(key, value) {
+    try {
+      localStorage.setItem(key, JSON.stringify(value));
+    } catch {}
+  }
+};
+
+const audio = $("audio");
+
+let queue = [];
+let index = 0;
+let shuffle = false;
+let repeat = false;
+let currentView = "home";
+let lastResults = [];
+let albums = LS.get("snuffy.albums", []);
+let liked = LS.get("snuffy.liked", []);
+let profile = LS.get("snuffy.profile", {
+  name:"",
+  dob:"",
+  email:""
+});
+let openAlbumId = null;
+let sheetTrack = null;
+let dragging = false;
+let dragPosition = 0;
+
+function esc(value) {
+  return String(value ?? "").replace(/[&<>"']/g, char => ({
+    "&":"&amp;",
+    "<":"&lt;",
+    ">":"&gt;",
+    '"':"&quot;",
+    "'":"&#39;"
+  })[char]);
+}
+
+function trackKey(track) {
+  return track.id
+    ? "id:" + track.id
+    : track.uri
+      ? "uri:" + track.uri
+      : "title:" + track.title + "|" + track.artist;
+}
+
+function saveCollections() {
+  LS.set("snuffy.albums", albums);
+  LS.set("snuffy.liked", liked);
+}
+
+function isLiked(track) {
+  return liked.some(item => trackKey(item) === trackKey(track));
+}
+
+function currentTrack() {
+  return queue[index] || null;
+}
+
+function sourceFor(track) {
+  if (!track) return "";
+  if (track.uri) return track.uri;
+  if (track.id) return "/api/stream/" + encodeURIComponent(track.id);
+  return "";
+}
+
+function formatTime(seconds) {
+  seconds = Math.max(0, Math.floor(seconds || 0));
+  return Math.floor(seconds / 60) + ":" +
+    String(seconds % 60).padStart(2, "0");
+}
+
+function showStatus(message) {
+  $("status").textContent = message;
+}
+
+function renderProfile() {
+  const name = (profile.name || "").trim();
+  $("pName").textContent = name || "Your profile";
+  $("avatar").textContent = name ? name[0].toUpperCase() : "?";
+}
+
+function saveProfile() {
+  const name = $("pfName").value.trim();
+  const dob = $("pfDob").value;
+  const email = $("pfEmail").value.trim();
+
+  if (email && !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) {
+    $("profileNote").textContent = "Enter a valid email address.";
+    return;
+  }
+
+  profile = { name, dob, email };
+  LS.set("snuffy.profile", profile);
+  renderProfile();
+  $("profileNote").textContent = "Saved.";
+}
+
+function openProfile() {
+  $("pfName").value = profile.name || "";
+  $("pfDob").value = profile.dob || "";
+  $("pfEmail").value = profile.email || "";
+  $("profileNote").textContent = "";
+  $("drawer").classList.remove("open");
+  $("scrim").hidden = true;
+  $("profilePage").hidden = false;
+}
+
+function closeProfile() {
+  $("profilePage").hidden = true;
+}
+
+function openDrawer() {
+  $("drawer").classList.add("open");
+  $("scrim").hidden = false;
+}
+
+function closeDrawer() {
+  $("drawer").classList.remove("open");
+  $("scrim").hidden = true;
+}
+
+function setView(name) {
+  currentView = name;
+
+  document.querySelectorAll(".view").forEach(view => {
+    view.classList.toggle("active", view.id === "view-" + name);
+  });
+
+  document.querySelectorAll(".tab").forEach(tab => {
+    tab.classList.toggle("on", tab.dataset.tab === name);
+  });
+
+  if (name === "albums") renderAlbums();
+  if (name === "liked") renderLiked();
+
+  $("screen").scrollTo({ top:0 });
+}
+
+function paintProgress(position, duration) {
+  const percent = duration > 0
+    ? Math.max(0, Math.min(1, position / duration))
+    : 0;
+
+  const width = (percent * 100) + "%";
+
+  $("barFill").style.width = width;
+  $("knob").style.left = width;
+  $("cur").textContent = formatTime(position);
+  $("dur").textContent = formatTime(duration);
+}
+
+function renderPlayer() {
+  const track = currentTrack();
+
+  $("title").textContent = track ? track.title : "No Track";
+  $("artist").textContent = track ? track.artist || "" : "";
+
+  const playing = !audio.paused && !audio.ended;
+
+  $("playBtn").textContent = playing ? "Ⅱ" : "▶";
+  $("disc").classList.toggle("spin", playing);
+
+  $("shuffleBtn").classList.toggle("on", shuffle);
+  $("repeatBtn").classList.toggle("on", repeat);
+
+  if (!dragging) {
+    paintProgress(audio.currentTime || 0, audio.duration || 0);
+  }
+
+  renderQueue();
+}
+
+function renderTrackRow(track, listName, itemIndex) {
+  const likedState = isLiked(track);
+
+  const thumbnail = track.thumb
+    ? `<img src="${esc(track.thumb)}" alt="" loading="lazy">`
+    : `<div class="ph"></div>`;
+
+  return `
+    <div class="item">
+      ${thumbnail}
+      <div class="meta">
+        <div class="t">${esc(track.title)}</div>
+        <div class="a">${esc(track.artist || "")}</div>
+      </div>
+      <div class="acts">
+        <button data-action="play" data-list="${listName}" data-index="${itemIndex}">▶</button>
+        <button class="${likedState ? "on" : ""}"
+          data-action="like"
+          data-list="${listName}"
+          data-index="${itemIndex}">
+          ${likedState ? "♥" : "♡"}
+        </button>
+        <button data-action="add"
+          data-list="${listName}"
+          data-index="${itemIndex}">+</button>
+      </div>
+    </div>
+  `;
+}
+
+function renderQueue() {
+  $("queue").innerHTML = queue.length
+    ? queue.map((track, i) => renderTrackRow(track, "queue", i)).join("")
+    : `<div class="muted">Nothing queued yet.</div>`;
+}
+
+function renderSearch() {
+  $("resultsPanel").hidden = !lastResults.length;
+  $("results").innerHTML = lastResults
+    .map((track, i) => renderTrackRow(track, "search", i))
+    .join("");
+}
+
+function renderLiked() {
+  $("likedCount").textContent = liked.length
+    ? liked.length + " songs"
+    : "";
+
+  $("likedBox").innerHTML = liked.length
+    ? liked.map((track, i) =>
+        renderTrackRow(track, "liked", i)
+      ).join("")
+    : `<div class="muted">No liked songs yet.</div>`;
+}
+
+function renderAlbums() {
+  const album = albums.find(item => item.id === openAlbumId);
+
+  if (album) {
+    $("albumsTitle").textContent = album.name;
+    $("albumBack").hidden = false;
+    $("newAlbumBox").hidden = true;
+    $("albumTools").hidden = false;
+
+    $("albumsBox").innerHTML = album.tracks.length
+      ? album.tracks.map((track, i) =>
+          renderTrackRow(track, "album", i)
+        ).join("")
+      : `<div class="muted">This album is empty.</div>`;
+
+    return;
+  }
+
+  openAlbumId = null;
+  $("albumsTitle").textContent = "Albums";
+  $("albumBack").hidden = true;
+  $("newAlbumBox").hidden = false;
+  $("albumTools").hidden = true;
+
+  $("albumsBox").innerHTML = albums.length
+    ? albums.map(album => `
+        <div class="album" data-open-album="${esc(album.id)}">
+          <div class="cover">♫</div>
+          <div class="meta">
+            <div class="t">${esc(album.name)}</div>
+            <div class="a">${album.tracks.length} songs</div>
+          </div>
+        </div>
+      `).join("")
+    : `<div class="muted">No albums yet. Create one above.</div>`;
+}
+
+function renderAll() {
+  renderProfile();
+  renderPlayer();
+  renderLiked();
+  renderAlbums();
+}
+
+function getList(name) {
+  if (name === "search") return lastResults;
+  if (name === "liked") return liked;
+  if (name === "queue") return queue;
+  if (name === "album") {
+    const album = albums.find(item => item.id === openAlbumId);
+    return album ? album.tracks : [];
+  }
+  return [];
+}
+
+async function playList(items, startIndex = 0) {
+  if (!items || !items.length) return;
+
+  queue = items.map(item => ({ ...item }));
+  index = Math.max(0, Math.min(startIndex, queue.length - 1));
+
+  const track = currentTrack();
+  const source = sourceFor(track);
+
+  if (!source) {
+    showStatus("Audio source unavailable");
+    return;
+  }
+
+  audio.pause();
+  audio.src = source;
+  audio.load();
+
+  showStatus("Loading...");
+  renderPlayer();
+
+  try {
+    await audio.play();
+    showStatus("Playing");
+  } catch (error) {
+    showStatus("Tap play to start");
+  }
+
+  renderPlayer();
+}
+
+async function togglePlayback() {
+  if (!currentTrack()) return;
+
+  if (audio.paused) {
+    if (!audio.src) {
+      await playList(queue, index);
+      return;
+    }
+
+    try {
+      await audio.play();
+    } catch {
+      showStatus("Playback could not start");
+    }
+  } else {
+    audio.pause();
+  }
+
+  renderPlayer();
+}
+
+function nextTrack() {
+  if (!queue.length) return;
+
+  if (shuffle && queue.length > 1) {
+    let next = index;
+    while (next === index) {
+      next = Math.floor(Math.random() * queue.length);
+    }
+    index = next;
+  } else if (index < queue.length - 1) {
+    index++;
+  } else if (repeat) {
+    index = 0;
+  } else {
+    audio.pause();
+    audio.currentTime = 0;
+    showStatus("Stopped");
+    renderPlayer();
+    return;
+  }
+
+  playList(queue, index);
+}
+
+function previousTrack() {
+  if (!queue.length) return;
+
+  if (audio.currentTime > 3) {
+    audio.currentTime = 0;
+    return;
+  }
+
+  if (index > 0) index--;
+  playList(queue, index);
+}
+function toggleLike(track) {
+  if (!track) return;
+
+  const key = trackKey(track);
+
+  if (isLiked(track)) {
+    liked = liked.filter(item => trackKey(item) !== key);
+  } else {
+    liked.push({ ...track });
+  }
+
+  saveCollections();
+  renderAll();
+}
+
+function createAlbum() {
+  const name = $("albumName").value.trim();
+  if (!name) return;
+
+  albums.push({
+    id: Date.now().toString(36) + Math.random().toString(36).slice(2, 7),
+    name,
+    tracks:[]
+  });
+
+  $("albumName").value = "";
+  saveCollections();
+  renderAlbums();
+}
+
+function openAlbumSheet(track) {
+  sheetTrack = track;
+  $("sheetList").innerHTML = albums.length
+    ? albums.map(album => `
+        <div class="album" data-pick-album="${esc(album.id)}">
+          <div class="cover">♫</div>
+          <div class="meta">
+            <div class="t">${esc(album.name)}</div>
+            <div class="a">${album.tracks.length} songs</div>
+          </div>
+        </div>
+      `).join("")
+    : `<div class="muted">Create an album first.</div>`;
+
+  $("sheet").hidden = false;
+}
+
+function closeAlbumSheet() {
+  $("sheet").hidden = true;
+  sheetTrack = null;
+}
+
+function addTrackToAlbum(albumId) {
+  const album = albums.find(item => item.id === albumId);
+  if (!album || !sheetTrack) return;
+
+  if (!album.tracks.some(item =>
+    trackKey(item) === trackKey(sheetTrack)
+  )) {
+    album.tracks.push({ ...sheetTrack });
+  }
+
+  saveCollections();
+  closeAlbumSheet();
+  renderAlbums();
+}
+
+function deleteCurrentAlbum() {
+  const album = albums.find(item => item.id === openAlbumId);
+  if (!album) return;
+
+  albums = albums.filter(item => item.id !== openAlbumId);
+  openAlbumId = null;
+
+  saveCollections();
+  renderAlbums();
+}
+
+async function searchSongs() {
+  const query = $("q").value.trim();
+  if (!query) return;
+
+  $("resultsPanel").hidden = false;
+  $("results").innerHTML = `<div class="muted">Searching...</div>`;
+
+  try {
+    const response = await fetch(
+      "/api/search?q=" + encodeURIComponent(query)
+    );
+
+    const data = await response.json();
+    lastResults = data.results || [];
+
+    if (!response.ok) {
+      throw new Error(data.error || "Search failed");
+    }
+
+    renderSearch();
+
+    if (!lastResults.length) {
+      $("resultsPanel").hidden = false;
+      $("results").innerHTML =
+        `<div class="muted">No results found.</div>`;
+    }
+  } catch (error) {
+    $("resultsPanel").hidden = false;
+    $("results").innerHTML =
+      `<div class="muted">${esc(error.message)}</div>`;
+  }
+}
+
+function importFiles(files) {
+  const audioFiles = [...files].filter(file =>
+    file.type.startsWith("audio/") ||
+    /\.(mp3|m4a|aac|wav|ogg|flac|opus|webm)$/i.test(file.name)
+  );
+
+  if (!audioFiles.length) return;
+
+  const localTracks = audioFiles.map(file => ({
+    id:null,
+    uri:URL.createObjectURL(file),
+    title:file.name.replace(/\.[^.]+$/, ""),
+    artist:"On this device",
+    thumb:""
+  }));
+
+  playList(localTracks, 0);
+}
+
+function shuffleList(items) {
+  const copy = [...items];
+
+  for (let i = copy.length - 1; i > 0; i--) {
+    const j = Math.floor(Math.random() * (i + 1));
+    [copy[i], copy[j]] = [copy[j], copy[i]];
+  }
+
+  return copy;
+}
+
+/* Player events */
+audio.addEventListener("timeupdate", () => {
+  if (!dragging) {
+    paintProgress(audio.currentTime, audio.duration);
+  }
+});
+
+audio.addEventListener("loadedmetadata", () => {
+  paintProgress(audio.currentTime, audio.duration);
+});
+
+audio.addEventListener("playing", () => {
+  showStatus("Playing");
+  renderPlayer();
+});
+
+audio.addEventListener("pause", () => {
+  if (!audio.ended) {
+    showStatus(audio.currentTime ? "Paused" : "Stopped");
+  }
+  renderPlayer();
+});
+
+audio.addEventListener("waiting", () => {
+  showStatus("Loading...");
+});
+
+audio.addEventListener("ended", () => {
+  if (repeat) {
+    audio.currentTime = 0;
+    audio.play().catch(() => {});
+  } else {
+    nextTrack();
+  }
+});
+
+audio.addEventListener("error", () => {
+  showStatus("This track could not be played");
+  renderPlayer();
+});
+
+/* Progress seek */
+function seekFromPointer(event) {
+  const rect = $("bar").getBoundingClientRect();
+  const percent = Math.max(
+    0,
+    Math.min(1, (event.clientX - rect.left) / rect.width)
+  );
+
+  dragPosition = percent * (audio.duration || 0);
+  paintProgress(dragPosition, audio.duration);
+}
+
+$("bar").addEventListener("pointerdown", event => {
+  if (!Number.isFinite(audio.duration) || audio.duration <= 0) return;
+
+  dragging = true;
+  $("bar").setPointerCapture(event.pointerId);
+  seekFromPointer(event);
+});
+
+$("bar").addEventListener("pointermove", event => {
+  if (dragging) seekFromPointer(event);
+});
+
+function finishSeek() {
+  if (!dragging) return;
+  dragging = false;
+  audio.currentTime = dragPosition;
+}
+
+$("bar").addEventListener("pointerup", finishSeek);
+$("bar").addEventListener("pointercancel", finishSeek);
+
+/* Main controls */
+$("playBtn").onclick = togglePlayback;
+$("nextBtn").onclick = nextTrack;
+$("prevBtn").onclick = previousTrack;
+
+$("shuffleBtn").onclick = () => {
+  shuffle = !shuffle;
+  renderPlayer();
+};
+
+$("repeatBtn").onclick = () => {
+  repeat = !repeat;
+  renderPlayer();
+};
+
+$("goBtn").onclick = searchSongs;
+$("q").addEventListener("keydown", event => {
+  if (event.key === "Enter") searchSongs();
+});
+
+$("menuBtn").onclick = openDrawer;
+$("scrim").onclick = closeDrawer;
+$("profileOpen").onclick = openProfile;
+$("profileBack").onclick = closeProfile;
+$("saveProfile").onclick = saveProfile;
+
+$("themeBtn").onclick = () => {
+  const next = document.documentElement.dataset.theme === "dark"
+    ? "light"
+    : "dark";
+
+  document.documentElement.dataset.theme = next;
+  $("themeBtn").textContent = next === "dark" ? "☾" : "☀";
+  LS.set("snuffy.theme", next);
+};
+
+$("fileBtn").onclick = () => $("fileInput").click();
+$("fileInput").addEventListener("change", event => {
+  importFiles(event.target.files);
+  event.target.value = "";
+});
+
+$("createAlbumBtn").onclick = createAlbum;
+$("albumName").addEventListener("keydown", event => {
+  if (event.key === "Enter") createAlbum();
+});
+
+$("albumBack").onclick = () => {
+  openAlbumId = null;
+  renderAlbums();
+};
+
+$("albumPlay").onclick = () => {
+  const album = albums.find(item => item.id === openAlbumId);
+  if (album) playList(album.tracks, 0);
+};
+
+$("albumShuffle").onclick = () => {
+  const album = albums.find(item => item.id === openAlbumId);
+  if (album) playList(shuffleList(album.tracks), 0);
+};
+
+$("deleteAlbum").onclick = deleteCurrentAlbum;
+
+$("likedPlay").onclick = () => playList(liked, 0);
+$("likedShuffle").onclick = () => playList(shuffleList(liked), 0);
+
+$("closeSheet").onclick = closeAlbumSheet;
+
+document.querySelectorAll("[data-tab]").forEach(tab => {
+  tab.addEventListener("click", () => setView(tab.dataset.tab));
+});
+
+/* Song and album actions */
+document.addEventListener("click", event => {
+  const albumOpen = event.target.closest("[data-open-album]");
+
+  if (albumOpen) {
+    openAlbumId = albumOpen.dataset.openAlbum;
+    renderAlbums();
+    return;
+  }
+
+  const albumPick = event.target.closest("[data-pick-album]");
+
+  if (albumPick) {
+    addTrackToAlbum(albumPick.dataset.pickAlbum);
+    return;
+  }
+
+  const button = event.target.closest("[data-action]");
+  if (!button) return;
+
+  const list = getList(button.dataset.list);
+  const item = list[Number(button.dataset.index)];
+
+  if (!item) return;
+
+  switch (button.dataset.action) {
+    case "play":
+      playList(list, Number(button.dataset.index));
+      break;
+
+    case "like":
+      toggleLike(item);
+      break;
+
+    case "add":
+      openAlbumSheet(item);
+      break;
+  }
+});
+
+/* Restore saved theme and profile */
+const savedTheme = LS.get("snuffy.theme", "dark");
+document.documentElement.dataset.theme =
+  savedTheme === "light" ? "light" : "dark";
+$("themeBtn").textContent =
+  savedTheme === "light" ? "☀" : "☾";
+
+renderAll();
+</script>
 </body>
 </html>
