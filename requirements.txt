@@ -1,4 +1,5 @@
 Flask>=3.0,<4
 gunicorn>=22,<24
-yt-dlp>=2025.1.15
 requests>=2.32,<3
+yt-dlp[default]
+yt-dlp-ejs
